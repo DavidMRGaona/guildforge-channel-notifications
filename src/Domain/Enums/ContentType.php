@@ -46,15 +46,22 @@ enum ContentType: string
             '{url}' => __('channel-notifications::messages.placeholders.url'),
             '{guild_name}' => __('channel-notifications::messages.placeholders.guild_name'),
             '{image_url}' => __('channel-notifications::messages.placeholders.image_url'),
+            '{tags}' => __('channel-notifications::messages.placeholders.tags'),
         ];
 
         return match ($this) {
             self::Event => array_merge($common, [
                 '{date}' => __('channel-notifications::messages.placeholders.date'),
+                '{end_date}' => __('channel-notifications::messages.placeholders.end_date'),
                 '{location}' => __('channel-notifications::messages.placeholders.location'),
+                '{price}' => __('channel-notifications::messages.placeholders.price'),
             ]),
-            self::Article => $common,
-            self::Gallery => $common,
+            self::Article => array_merge($common, [
+                '{author}' => __('channel-notifications::messages.placeholders.author'),
+            ]),
+            self::Gallery => array_merge($common, [
+                '{photo_count}' => __('channel-notifications::messages.placeholders.photo_count'),
+            ]),
         };
     }
 

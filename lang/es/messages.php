@@ -70,8 +70,13 @@ return [
         'url' => 'Enlace al contenido',
         'guild_name' => 'Nombre de la asociación',
         'image_url' => 'URL de la imagen',
+        'tags' => 'Etiquetas del contenido',
         'date' => 'Fecha del evento',
+        'end_date' => 'Fecha de fin del evento',
         'location' => 'Ubicación del evento',
+        'price' => 'Precio del evento',
+        'author' => 'Autor del artículo',
+        'photo_count' => 'Número de fotos de la galería',
     ],
 
     // Permissions
@@ -84,24 +89,24 @@ return [
     // Default templates
     'defaults' => [
         'telegram' => [
-            'event' => "<b>{guild_name}</b> — Nuevo evento\n\n📌 <b>{title}</b>\n📅 {date}\n📍 {location}\n\n{excerpt}\n\n🔗 <a href=\"{url}\">Ver más</a>",
-            'article' => "<b>{guild_name}</b> — Nuevo artículo\n\n📰 <b>{title}</b>\n\n{excerpt}\n\n🔗 <a href=\"{url}\">Leer más</a>",
-            'gallery' => "<b>{guild_name}</b> — Nueva galería\n\n📸 <b>{title}</b>\n\n{excerpt}\n\n🔗 <a href=\"{url}\">Ver galería</a>",
+            'event' => "<b>{guild_name}</b> — Nuevo evento\n\n📌 <b>{title}</b>\n📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Ver evento</a>",
+            'article' => "<b>{guild_name}</b> — Nuevo artículo\n\n📰 <b>{title}</b>\n✍️ {author}\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Leer artículo</a>",
+            'gallery' => "<b>{guild_name}</b> — Nueva galería\n\n📸 <b>{title}</b>\n🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Ver galería</a>",
         ],
         'discord' => [
-            'event' => "📌 {title}\n📅 {date} · 📍 {location}\n\n{excerpt}",
-            'article' => "📰 {title}\n\n{excerpt}",
-            'gallery' => "📸 {title}\n\n{excerpt}",
+            'event' => "📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}",
+            'article' => "✍️ {author}\n\n{excerpt}\n\n🏷 {tags}",
+            'gallery' => "🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}",
         ],
         'slack' => [
-            'event' => "📌 {title}\n📅 {date} · 📍 {location}\n\n{excerpt}",
-            'article' => "📰 {title}\n\n{excerpt}",
-            'gallery' => "📸 {title}\n\n{excerpt}",
+            'event' => "📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}",
+            'article' => "✍️ {author}\n\n{excerpt}\n\n🏷 {tags}",
+            'gallery' => "🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}",
         ],
         'whatsapp' => [
-            'event' => "{guild_name} — Nuevo evento: {title}\n{date} · {location}\n{excerpt}\n{url}",
-            'article' => "{guild_name} — Nuevo artículo: {title}\n{excerpt}\n{url}",
-            'gallery' => "{guild_name} — Nueva galería: {title}\n{excerpt}\n{url}",
+            'event' => "{guild_name} — Nuevo evento\n\n📌 {title}\n📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
+            'article' => "{guild_name} — Nuevo artículo\n\n📰 {title}\n✍️ {author}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
+            'gallery' => "{guild_name} — Nueva galería\n\n📸 {title}\n🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
         ],
     ],
 

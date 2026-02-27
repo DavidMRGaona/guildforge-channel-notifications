@@ -20,6 +20,11 @@ final class ContentPublishedNotification extends Notification implements ShouldQ
         private readonly NotificationMessage $message,
     ) {}
 
+    public function getMessage(): NotificationMessage
+    {
+        return $this->message;
+    }
+
     /**
      * @return array<int, class-string>
      */

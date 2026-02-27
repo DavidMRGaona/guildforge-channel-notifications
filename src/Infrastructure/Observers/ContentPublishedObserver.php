@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Infrastructure\Observers;
 
+use App\Infrastructure\Persistence\Eloquent\Models\ArticleModel;
 use App\Infrastructure\Persistence\Eloquent\Models\EventModel;
 use App\Infrastructure\Persistence\Eloquent\Models\GalleryModel;
 use Illuminate\Database\Eloquent\Model;
@@ -91,14 +92,77 @@ final class ContentPublishedObserver
      */
     private function getExtraData(Model $model, ContentType $contentType): array
     {
-        if ($contentType !== ContentType::Event) {
-            return [];
+        return match ($contentType) {
+            ContentType::Event => $this->getEventData($model),
+            ContentType::Article => $this->getArticleData($model),
+            ContentType::Gallery => $this->getGalleryData($model),
+        };
+    }
+
+    private function getTagNames(Model $model): string
+    {
+        if (! method_exists($model, 'tags')) {
+            return '';
         }
 
+        /** @var EventModel|ArticleModel|GalleryModel $model */
+        return $model->tags->pluck('name')->join(', ');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getEventData(Model $model): array
+    {
         /** @var EventModel $model */
         return [
+            'tags' => $this->getTagNames($model),
             'date' => $model->start_date->format('d/m/Y H:i'),
+            'end_date' => $model->end_date->format('d/m/Y H:i'),
             'location' => (string) ($model->location ?? ''),
+            'price' => $this->formatPrice($model),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getArticleData(Model $model): array
+    {
+        /** @var ArticleModel $model */
+        return [
+            'tags' => $this->getTagNames($model),
+            'author' => (string) ($model->author->display_name ?? $model->author->name),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getGalleryData(Model $model): array
+    {
+        /** @var GalleryModel $model */
+        return [
+            'tags' => $this->getTagNames($model),
+            'photo_count' => (string) $model->photos()->count(),
+        ];
+    }
+
+    private function formatPrice(Model $model): string
+    {
+        $memberPrice = $model->getAttribute('member_price');
+        $nonMemberPrice = $model->getAttribute('non_member_price');
+
+        if ($memberPrice === null && $nonMemberPrice === null) {
+            return 'Gratis';
+        }
+
+        if ($memberPrice !== null && $nonMemberPrice !== null && $memberPrice !== $nonMemberPrice) {
+            return "Socios: {$memberPrice}€ · No socios: {$nonMemberPrice}€";
+        }
+
+        $price = $memberPrice ?? $nonMemberPrice;
+
+        return "{$price}€";
     }
 }
