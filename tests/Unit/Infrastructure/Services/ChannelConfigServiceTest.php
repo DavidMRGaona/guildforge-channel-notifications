@@ -120,30 +120,29 @@ final class ChannelConfigServiceTest extends TestCase
 
     public function test_get_channel_credentials_for_whatsapp(): void
     {
-        $matcher = $this->exactly(2);
         $this->settings
             ->method('get')
-            ->willReturnCallback(function (string $key, mixed $default) use ($matcher): mixed {
-                $matcher->numberOfInvocations();
-
-                return match ($key) {
-                    'notifications_whatsapp_phone_number_id' => '1234567890',
-                    'notifications_whatsapp_recipient' => '+34600000000',
-                    default => $default,
-                };
+            ->willReturnCallback(static fn (string $key, mixed $default = null): mixed => match ($key) {
+                'notifications_whatsapp_phone_number_id' => '1234567890',
+                'notifications_whatsapp_recipients' => '+34600000001,+34600000002',
+                default => $default,
             });
 
         $this->settings
             ->method('getEncrypted')
-            ->with('notifications_whatsapp_access_token', '')
-            ->willReturn('EAAx...');
+            ->willReturnCallback(static fn (string $key, mixed $default = ''): mixed => match ($key) {
+                'notifications_whatsapp_access_token' => 'EAAx...',
+                'notifications_whatsapp_webhook_url' => 'https://bot.example.com/webhook',
+                default => $default,
+            });
 
         $credentials = $this->service->getChannelCredentials(NotificationChannel::WhatsApp);
 
         $this->assertSame('EAAx...', $credentials['access_token']);
         $this->assertSame('1234567890', $credentials['phone_number_id']);
-        $this->assertSame('+34600000000', $credentials['recipient']);
-        $this->assertCount(3, $credentials);
+        $this->assertSame('+34600000001,+34600000002', $credentials['recipients']);
+        $this->assertSame('https://bot.example.com/webhook', $credentials['webhook_url']);
+        $this->assertCount(4, $credentials);
     }
 
     public function test_get_enabled_content_types_parses_json(): void

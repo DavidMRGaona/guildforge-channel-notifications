@@ -100,21 +100,28 @@ final class ContentPublishedNotification extends Notification implements ShouldQ
     }
 
     /**
-     * @return array{access_token: string, phone_number_id: string, recipient: string, text: string, image_url: ?string}
+     * @return array{access_token: string, phone_number_id: string, recipients: string, webhook_url: string, text: string, image_url: ?string, title: string, content_url: string, content_type: string, guild_name: string}
      */
     public function toWhatsApp(): array
     {
         $config = app(ChannelConfigServiceInterface::class);
         $credentials = $config->getChannelCredentials(NotificationChannel::WhatsApp);
         $template = $config->getTemplate(NotificationChannel::WhatsApp, $this->message->contentType);
-        $text = $this->renderTemplate($template);
+        $guildName = (string) app(\App\Application\Services\SettingsServiceInterface::class)->get('guild_name', 'GuildForge');
+        $renderer = app(TemplateRenderer::class);
+        $text = $renderer->render($template, $this->message, $guildName);
 
         return [
             'access_token' => $credentials['access_token'],
             'phone_number_id' => $credentials['phone_number_id'],
-            'recipient' => $credentials['recipient'],
+            'recipients' => $credentials['recipients'],
+            'webhook_url' => $credentials['webhook_url'],
             'text' => $text,
             'image_url' => $this->message->imageUrl,
+            'title' => $this->message->title,
+            'content_url' => $this->message->contentUrl,
+            'content_type' => $this->message->contentType->value,
+            'guild_name' => $guildName,
         ];
     }
 

@@ -19,27 +19,104 @@ final class WhatsAppChannel
 
         $data = $notification->toWhatsApp();
 
-        if ($data['access_token'] === '' || $data['phone_number_id'] === '' || $data['recipient'] === '') {
+        $recipients = $this->parseRecipients($data['recipients']);
+        $webhookUrl = $data['webhook_url'];
+
+        if ($recipients === [] && $webhookUrl === '') {
+            return;
+        }
+
+        if ($recipients !== []) {
+            $this->sendToRecipients($data, $recipients);
+        }
+
+        if ($webhookUrl !== '') {
+            $this->sendToWebhook($data, $webhookUrl);
+        }
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function parseRecipients(string $recipients): array
+    {
+        if ($recipients === '') {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map('trim', explode(',', $recipients)),
+            static fn (string $r): bool => $r !== '',
+        ));
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  array<string>  $recipients
+     */
+    private function sendToRecipients(array $data, array $recipients): void
+    {
+        if ($data['access_token'] === '' || $data['phone_number_id'] === '') {
             return;
         }
 
         $url = "https://graph.facebook.com/v21.0/{$data['phone_number_id']}/messages";
 
-        $payload = $this->buildPayload($data);
+        foreach ($recipients as $recipient) {
+            try {
+                $payload = $this->buildPayload($data, $recipient);
+                $response = Http::timeout(10)
+                    ->withToken($data['access_token'])
+                    ->post($url, $payload);
 
+                if ($response->failed()) {
+                    Log::warning('WhatsApp notification failed', [
+                        'recipient' => $recipient,
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('WhatsApp notification error', [
+                    'recipient' => $recipient,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function sendToWebhook(array $data, string $webhookUrl): void
+    {
         try {
-            $response = Http::timeout(10)
-                ->withToken($data['access_token'])
-                ->post($url, $payload);
+            $response = Http::timeout(10)->post($webhookUrl, [
+                'channel' => 'whatsapp',
+                'timestamp' => now()->toIso8601String(),
+                'message' => [
+                    'text' => $data['text'],
+                    'image_url' => $data['image_url'],
+                ],
+                'metadata' => [
+                    'content_type' => $data['content_type'],
+                    'title' => $data['title'],
+                    'content_url' => $data['content_url'],
+                    'guild_name' => $data['guild_name'],
+                ],
+            ]);
 
             if ($response->failed()) {
-                Log::warning('WhatsApp notification failed', [
+                Log::warning('WhatsApp webhook failed', [
+                    'url' => $webhookUrl,
                     'status' => $response->status(),
-                    'body' => $response->body(),
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::error('WhatsApp notification error', ['error' => $e->getMessage()]);
+            Log::warning('WhatsApp webhook error', [
+                'url' => $webhookUrl,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -47,11 +124,11 @@ final class WhatsAppChannel
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private function buildPayload(array $data): array
+    private function buildPayload(array $data, string $recipient): array
     {
         $base = [
             'messaging_product' => 'whatsapp',
-            'to' => $data['recipient'],
+            'to' => $recipient,
         ];
 
         if ($data['image_url'] !== null && $data['image_url'] !== '') {

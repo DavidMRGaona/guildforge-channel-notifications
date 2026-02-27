@@ -43,7 +43,9 @@ final readonly class ChannelConfigService implements ChannelConfigServiceInterfa
             NotificationChannel::WhatsApp => [
                 'access_token' => (string) $this->settings->getEncrypted($prefix.'_access_token', ''),
                 'phone_number_id' => (string) $this->settings->get($prefix.'_phone_number_id', ''),
-                'recipient' => (string) $this->settings->get($prefix.'_recipient', ''),
+                'recipients' => (string) $this->settings->get($prefix.'_recipients',
+                    (string) $this->settings->get($prefix.'_recipient', '')),
+                'webhook_url' => (string) $this->settings->getEncrypted($prefix.'_webhook_url', ''),
             ],
         };
     }

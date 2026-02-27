@@ -27,11 +27,14 @@ return [
             'access_token' => 'Token de acceso',
             'phone_number_id' => 'ID del número de teléfono',
             'recipient' => 'Número de destinatario',
+            'recipients' => 'Destinatarios',
+            'whatsapp_webhook_url' => 'URL del webhook',
             'credentials' => 'Credenciales',
             'content_types' => 'Tipos de contenido',
             'content_types_helper' => 'Selecciona qué tipos de contenido enviar a este canal.',
             'templates_section' => 'Plantillas de mensajes',
             'templates_helper' => 'Personaliza el formato de los mensajes. Placeholders disponibles:',
+            'test_content_type' => 'Tipo de contenido',
             'template_event' => 'Plantilla de eventos',
             'template_article' => 'Plantilla de artículos',
             'template_gallery' => 'Plantilla de galerías',
@@ -45,6 +48,8 @@ return [
             'whatsapp_access_token' => 'Token de acceso permanente de la API de WhatsApp Business.',
             'whatsapp_phone_number_id' => 'ID del número de teléfono de la API de WhatsApp Business.',
             'whatsapp_recipient' => 'Número de teléfono del destinatario (con código de país, ej: 34612345678).',
+            'whatsapp_recipients' => 'Números de teléfono separados por comas (con código de país, ej: 34612345678, 34698765432).',
+            'whatsapp_webhook_url' => 'URL de un webhook externo para reenviar notificaciones (whatsapp-web.js, Baileys, etc.). Permite enviar a grupos y comunidades.',
         ],
 
         'actions' => [
@@ -112,7 +117,26 @@ return [
 
     // Test notification
     'test' => [
-        'title' => 'Mensaje de prueba',
-        'excerpt' => 'Este es un mensaje de prueba de las notificaciones a canales.',
+        'event' => [
+            'title' => 'Torneo Warhammer 40K',
+            'excerpt' => 'Gran torneo de Warhammer con premios para los tres primeros clasificados.',
+            'date' => '15/03/2026 10:00',
+            'end_date' => '16/03/2026 20:00',
+            'location' => 'Local de la asociación',
+            'price' => '10€',
+            'tags' => 'warhammer, torneo, 40K',
+        ],
+        'article' => [
+            'title' => 'Crónica de la última partida',
+            'excerpt' => 'Resumen épico de la última sesión de rol donde el grupo se enfrentó al dragón.',
+            'author' => 'El director',
+            'tags' => 'crónica, rol, partida',
+        ],
+        'gallery' => [
+            'title' => 'Fotos del último evento',
+            'excerpt' => 'Recopilación de las mejores fotos del torneo del fin de semana.',
+            'photo_count' => '24',
+            'tags' => 'fotos, torneo, galería',
+        ],
     ],
 ];

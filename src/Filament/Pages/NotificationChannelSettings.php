@@ -10,6 +10,7 @@ use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
@@ -25,6 +26,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Domain\Enums\NotificationChannel;
+use Modules\ChannelNotifications\Domain\ValueObjects\NotificationMessage;
+use Modules\ChannelNotifications\Infrastructure\Services\TemplateRenderer;
 
 /**
  * @property Form $form
@@ -81,7 +84,7 @@ final class NotificationChannelSettings extends Page implements HasForms
                 NotificationChannel::Telegram => ["{$prefix}_bot_token", "{$prefix}_chat_id"],
                 NotificationChannel::Discord => ["{$prefix}_webhook_url"],
                 NotificationChannel::Slack => ["{$prefix}_webhook_url"],
-                NotificationChannel::WhatsApp => ["{$prefix}_access_token", "{$prefix}_phone_number_id", "{$prefix}_recipient"],
+                NotificationChannel::WhatsApp => ["{$prefix}_access_token", "{$prefix}_phone_number_id", "{$prefix}_recipients", "{$prefix}_webhook_url"],
             });
 
             foreach (ContentType::cases() as $contentType) {
@@ -121,6 +124,7 @@ final class NotificationChannelSettings extends Page implements HasForms
             'notifications_discord_webhook_url',
             'notifications_slack_webhook_url',
             'notifications_whatsapp_access_token',
+            'notifications_whatsapp_webhook_url',
         ];
     }
 
@@ -176,9 +180,10 @@ final class NotificationChannelSettings extends Page implements HasForms
             ->send();
     }
 
-    public function sendTest(string $channelValue): void
+    public function sendTest(string $channelValue, string $contentTypeValue): void
     {
         $channel = NotificationChannel::from($channelValue);
+        $contentType = ContentType::from($contentTypeValue);
         $prefix = $channel->settingsPrefix();
         $state = $this->form->getState();
 
@@ -192,7 +197,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         }
 
         try {
-            $this->dispatchTestNotification($channel, $state);
+            $this->dispatchTestNotification($channel, $contentType, $state);
 
             Notification::make()
                 ->title(__('channel-notifications::messages.settings.actions.test_success'))
@@ -243,7 +248,17 @@ final class NotificationChannelSettings extends Page implements HasForms
                         ->label(__('channel-notifications::messages.settings.actions.test'))
                         ->icon('heroicon-o-paper-airplane')
                         ->color('gray')
-                        ->action(fn () => $this->sendTest($channel->value)),
+                        ->form([
+                            Select::make('content_type')
+                                ->label(__('channel-notifications::messages.settings.fields.test_content_type'))
+                                ->options(array_combine(
+                                    array_map(static fn (ContentType $ct): string => $ct->value, ContentType::cases()),
+                                    array_map(static fn (ContentType $ct): string => $ct->label(), ContentType::cases()),
+                                ))
+                                ->default(ContentType::Event->value)
+                                ->required(),
+                        ])
+                        ->action(fn (array $data) => $this->sendTest($channel->value, $data['content_type'])),
                 ])->visible(fn (Get $get): bool => (bool) $get("{$prefix}_enabled")),
             ]);
     }
@@ -289,9 +304,15 @@ final class NotificationChannelSettings extends Page implements HasForms
                 TextInput::make("{$prefix}_phone_number_id")
                     ->label(__('channel-notifications::messages.settings.fields.phone_number_id'))
                     ->helperText(__('channel-notifications::messages.settings.helpers.whatsapp_phone_number_id')),
-                TextInput::make("{$prefix}_recipient")
-                    ->label(__('channel-notifications::messages.settings.fields.recipient'))
-                    ->helperText(__('channel-notifications::messages.settings.helpers.whatsapp_recipient')),
+                Textarea::make("{$prefix}_recipients")
+                    ->label(__('channel-notifications::messages.settings.fields.recipients'))
+                    ->helperText(__('channel-notifications::messages.settings.helpers.whatsapp_recipients'))
+                    ->rows(2),
+                TextInput::make("{$prefix}_webhook_url")
+                    ->label(__('channel-notifications::messages.settings.fields.whatsapp_webhook_url'))
+                    ->helperText(__('channel-notifications::messages.settings.helpers.whatsapp_webhook_url'))
+                    ->password()
+                    ->revealable(),
             ],
         };
     }
@@ -332,22 +353,70 @@ final class NotificationChannelSettings extends Page implements HasForms
     /**
      * @param  array<string, mixed>  $state
      */
-    private function dispatchTestNotification(NotificationChannel $channel, array $state): void
+    private function dispatchTestNotification(NotificationChannel $channel, ContentType $contentType, array $state): void
     {
         $settingsService = app(SettingsServiceInterface::class);
         $guildName = (string) $settingsService->get('guild_name', 'GuildForge');
-        $testTitle = __('channel-notifications::messages.test.title');
-        $testExcerpt = __('channel-notifications::messages.test.excerpt');
-        $testUrl = url('/');
 
-        $text = "{$guildName} — {$testTitle}\n\n{$testExcerpt}\n\n{$testUrl}";
+        $message = $this->getTestMessage($contentType);
+        $template = $this->getTemplateFromState($state, $channel, $contentType);
+
+        $renderer = new TemplateRenderer;
+        $text = $renderer->render($template, $message, $guildName);
 
         match ($channel) {
             NotificationChannel::Telegram => $this->sendTelegramTest($state, $text),
-            NotificationChannel::Discord => $this->sendDiscordTest($state, $text, $testTitle),
-            NotificationChannel::Slack => $this->sendSlackTest($state, $text, $testTitle),
-            NotificationChannel::WhatsApp => $this->sendWhatsAppTest($state, $text),
+            NotificationChannel::Discord => $this->sendDiscordTest($state, $text, $message->title),
+            NotificationChannel::Slack => $this->sendSlackTest($state, $text, $message->title),
+            NotificationChannel::WhatsApp => $this->sendWhatsAppTest($state, $text, $message->title),
         };
+    }
+
+    private function getTestMessage(ContentType $contentType): NotificationMessage
+    {
+        $prefix = "channel-notifications::messages.test.{$contentType->value}";
+
+        $extraData = match ($contentType) {
+            ContentType::Event => [
+                'date' => __("{$prefix}.date"),
+                'end_date' => __("{$prefix}.end_date"),
+                'location' => __("{$prefix}.location"),
+                'price' => __("{$prefix}.price"),
+                'tags' => __("{$prefix}.tags"),
+            ],
+            ContentType::Article => [
+                'author' => __("{$prefix}.author"),
+                'tags' => __("{$prefix}.tags"),
+            ],
+            ContentType::Gallery => [
+                'photo_count' => __("{$prefix}.photo_count"),
+                'tags' => __("{$prefix}.tags"),
+            ],
+        };
+
+        return new NotificationMessage(
+            title: __("{$prefix}.title"),
+            excerpt: __("{$prefix}.excerpt"),
+            imageUrl: null,
+            contentUrl: url('/'),
+            contentType: $contentType,
+            extraData: $extraData,
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $state
+     */
+    private function getTemplateFromState(array $state, NotificationChannel $channel, ContentType $contentType): string
+    {
+        $key = "notifications_template_{$channel->value}_{$contentType->value}";
+        $template = trim((string) ($state[$key] ?? ''));
+
+        if ($template === '') {
+            $template = __("channel-notifications::messages.defaults.{$channel->value}.{$contentType->value}");
+        }
+
+        return $template;
     }
 
     /**
@@ -411,23 +480,55 @@ final class NotificationChannelSettings extends Page implements HasForms
     /**
      * @param  array<string, mixed>  $state
      */
-    private function sendWhatsAppTest(array $state, string $text): void
+    private function sendWhatsAppTest(array $state, string $text, string $title): void
     {
         $token = $state['notifications_whatsapp_access_token'] ?? '';
         $phoneId = $state['notifications_whatsapp_phone_number_id'] ?? '';
-        $recipient = $state['notifications_whatsapp_recipient'] ?? '';
+        $recipientsRaw = $state['notifications_whatsapp_recipients'] ?? '';
+        $webhookUrl = $state['notifications_whatsapp_webhook_url'] ?? '';
 
-        $response = Http::timeout(10)
-            ->withToken($token)
-            ->post("https://graph.facebook.com/v21.0/{$phoneId}/messages", [
-                'messaging_product' => 'whatsapp',
-                'to' => $recipient,
-                'type' => 'text',
-                'text' => ['body' => $text],
+        $recipients = array_values(array_filter(
+            array_map('trim', explode(',', $recipientsRaw)),
+            static fn (string $r): bool => $r !== '',
+        ));
+
+        $firstRecipient = $recipients[0] ?? '';
+
+        if ($firstRecipient !== '' && $token !== '' && $phoneId !== '') {
+            $response = Http::timeout(10)
+                ->withToken($token)
+                ->post("https://graph.facebook.com/v21.0/{$phoneId}/messages", [
+                    'messaging_product' => 'whatsapp',
+                    'to' => $firstRecipient,
+                    'type' => 'text',
+                    'text' => ['body' => $text],
+                ]);
+
+            if ($response->failed()) {
+                throw new \RuntimeException($response->json('error.message', "HTTP {$response->status()}"));
+            }
+        }
+
+        if ($webhookUrl !== '') {
+            $response = Http::timeout(10)->post($webhookUrl, [
+                'channel' => 'whatsapp',
+                'timestamp' => now()->toIso8601String(),
+                'message' => ['text' => $text, 'image_url' => null],
+                'metadata' => [
+                    'content_type' => 'test',
+                    'title' => $title,
+                    'content_url' => url('/'),
+                    'guild_name' => (string) app(SettingsServiceInterface::class)->get('guild_name', 'GuildForge'),
+                ],
             ]);
 
-        if ($response->failed()) {
-            throw new \RuntimeException($response->json('error.message', "HTTP {$response->status()}"));
+            if ($response->failed()) {
+                throw new \RuntimeException("Webhook HTTP {$response->status()}");
+            }
+        }
+
+        if ($firstRecipient === '' && $webhookUrl === '') {
+            throw new \RuntimeException(__('channel-notifications::messages.settings.actions.test_not_configured'));
         }
     }
 }
