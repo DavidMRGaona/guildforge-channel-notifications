@@ -2,6 +2,7 @@
     "name": "channel-notifications",
     "displayName": "Notificaciones a canales",
     "version": "1.0.0-beta",
+    "repository": "DavidMRGaona/guildforge-channel-notifications",
     "namespace": "Modules\\ChannelNotifications",
     "provider": "ChannelNotificationsServiceProvider",
     "description": "Notificaciones automáticas a Telegram, Discord, Slack y WhatsApp al publicar contenido",
