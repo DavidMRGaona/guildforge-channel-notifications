@@ -1,7 +1,7 @@
 {
     "name": "channel-notifications",
     "displayName": "Notificaciones a canales",
-    "version": "1.0.0-beta",
+    "version": "1.0.1-beta",
     "repository": "DavidMRGaona/guildforge-channel-notifications",
     "namespace": "Modules\\ChannelNotifications",
     "provider": "ChannelNotificationsServiceProvider",
