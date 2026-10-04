@@ -194,26 +194,4 @@ final class ChannelConfigServiceTest extends TestCase
 
         $this->assertSame('Custom: {title} at {guild_name}', $result);
     }
-
-    public function test_get_template_falls_back_when_empty(): void
-    {
-        // getDefaultTemplate() calls __() which requires the Laravel translator service.
-        // In pure PHPUnit (without Laravel boot), the translator binding is unavailable.
-        $this->markTestSkipped(
-            'Requires Laravel application context: getDefaultTemplate() uses __() translation helper.',
-        );
-    }
-
-    public function test_get_template_does_not_return_custom_when_value_is_empty_string(): void
-    {
-        $this->settings
-            ->method('get')
-            ->with('notifications_template_telegram_article')
-            ->willReturn('');
-
-        // Like the test above, this falls back to getDefaultTemplate() which needs __().
-        $this->markTestSkipped(
-            'Requires Laravel application context: getDefaultTemplate() uses __() translation helper.',
-        );
-    }
 }
