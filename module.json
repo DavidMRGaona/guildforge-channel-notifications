@@ -1,24 +1,26 @@
 {
-    "name": "channel-notifications",
-    "displayName": "Notificaciones a canales",
-    "version": "1.0.1-beta",
-    "repository": "DavidMRGaona/guildforge-channel-notifications",
-    "namespace": "Modules\\ChannelNotifications",
-    "provider": "ChannelNotificationsServiceProvider",
-    "description": "Notificaciones automáticas a Telegram, Discord, Slack y WhatsApp al publicar contenido",
-    "author": "GuildForge",
-    "requires": {
-        "php": ">=8.2",
-        "laravel": ">=12.0"
-    },
-    "dependencies": [],
-    "provides": {
-        "permissions": [
-            "notifications.manage"
-        ],
-        "routes": [],
-        "filament": true,
-        "frontend": false,
-        "inertia_share": false
-    }
+  "name": "channel-notifications",
+  "displayName": "Notificaciones a canales",
+  "version": "1.1.0",
+  "repository": "DavidMRGaona/guildforge-channel-notifications",
+  "namespace": "Modules\\ChannelNotifications",
+  "provider": "ChannelNotificationsServiceProvider",
+  "description": "Notificaciones automáticas a Telegram, Discord, Slack y WhatsApp al publicar contenido",
+  "author": "GuildForge",
+  "requires": {
+    "core": "^2.6",
+    "filament": "^3.3",
+    "php": ">=8.2",
+    "laravel": ">=12.0"
+  },
+  "dependencies": [],
+  "provides": {
+    "permissions": [
+      "notifications.manage"
+    ],
+    "routes": [],
+    "filament": true,
+    "frontend": false,
+    "inertia_share": false
+  }
 }
