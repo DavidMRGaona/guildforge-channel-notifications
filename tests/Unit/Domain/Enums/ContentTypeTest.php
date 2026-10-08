@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Tests\Unit\Domain\Enums;
 
+use stdClass;
 use App\Infrastructure\Persistence\Eloquent\Models\ArticleModel;
 use App\Infrastructure\Persistence\Eloquent\Models\EventModel;
 use App\Infrastructure\Persistence\Eloquent\Models\GalleryModel;
@@ -42,6 +43,6 @@ final class ContentTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported model class: stdClass');
 
-        ContentType::fromModelClass(\stdClass::class);
+        ContentType::fromModelClass(stdClass::class);
     }
 }

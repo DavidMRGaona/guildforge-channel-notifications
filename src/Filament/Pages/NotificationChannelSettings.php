@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Filament\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Throwable;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Actions;
+use Filament\Actions\Action;
+use RuntimeException;
 use App\Application\Services\SettingsServiceInterface;
 use App\Filament\Concerns\ManagesPageSettings;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Http;
@@ -30,18 +32,18 @@ use Modules\ChannelNotifications\Domain\ValueObjects\NotificationMessage;
 use Modules\ChannelNotifications\Infrastructure\Services\TemplateRenderer;
 
 /**
- * @property Form $form
+ * @property \Filament\Schemas\Schema $form
  */
 final class NotificationChannelSettings extends Page implements HasForms
 {
     use InteractsWithForms;
     use ManagesPageSettings;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-bell-alert';
 
     protected static ?int $navigationSort = 95;
 
-    protected static string $view = 'channel-notifications::filament.pages.notification-channel-settings';
+    protected string $view = 'channel-notifications::filament.pages.notification-channel-settings';
 
     /**
      * @var array<string, mixed>
@@ -153,10 +155,10 @@ final class NotificationChannelSettings extends Page implements HasForms
         $this->form->fill($this->loadSettings($settingsService));
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('Channels')
                     ->tabs([
                         $this->buildChannelTab(NotificationChannel::Telegram),
@@ -203,7 +205,7 @@ final class NotificationChannelSettings extends Page implements HasForms
                 ->title(__('channel-notifications::messages.settings.actions.test_success'))
                 ->success()
                 ->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Test notification failed', ['channel' => $channelValue, 'error' => $e->getMessage()]);
 
             Notification::make()
@@ -244,11 +246,11 @@ final class NotificationChannelSettings extends Page implements HasForms
                     ->collapsed(),
 
                 Actions::make([
-                    FormAction::make("test_{$channel->value}")
+                    Action::make("test_{$channel->value}")
                         ->label(__('channel-notifications::messages.settings.actions.test'))
                         ->icon('heroicon-o-paper-airplane')
                         ->color('gray')
-                        ->form([
+                        ->schema([
                             Select::make('content_type')
                                 ->label(__('channel-notifications::messages.settings.fields.test_content_type'))
                                 ->options(array_combine(
@@ -264,7 +266,7 @@ final class NotificationChannelSettings extends Page implements HasForms
     }
 
     /**
-     * @return array<\Filament\Forms\Components\Component>
+     * @return array<\Filament\Schemas\Components\Component>
      */
     private function getCredentialFields(NotificationChannel $channel): array
     {
@@ -434,7 +436,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         ]);
 
         if ($response->failed()) {
-            throw new \RuntimeException($response->json('description', 'Unknown error'));
+            throw new RuntimeException($response->json('description', 'Unknown error'));
         }
     }
 
@@ -454,7 +456,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         ]);
 
         if ($response->failed()) {
-            throw new \RuntimeException("HTTP {$response->status()}");
+            throw new RuntimeException("HTTP {$response->status()}");
         }
     }
 
@@ -473,7 +475,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         ]);
 
         if ($response->failed()) {
-            throw new \RuntimeException("HTTP {$response->status()}");
+            throw new RuntimeException("HTTP {$response->status()}");
         }
     }
 
@@ -505,7 +507,7 @@ final class NotificationChannelSettings extends Page implements HasForms
                 ]);
 
             if ($response->failed()) {
-                throw new \RuntimeException($response->json('error.message', "HTTP {$response->status()}"));
+                throw new RuntimeException($response->json('error.message', "HTTP {$response->status()}"));
             }
         }
 
@@ -523,12 +525,12 @@ final class NotificationChannelSettings extends Page implements HasForms
             ]);
 
             if ($response->failed()) {
-                throw new \RuntimeException("Webhook HTTP {$response->status()}");
+                throw new RuntimeException("Webhook HTTP {$response->status()}");
             }
         }
 
         if ($firstRecipient === '' && $webhookUrl === '') {
-            throw new \RuntimeException(__('channel-notifications::messages.settings.actions.test_not_configured'));
+            throw new RuntimeException(__('channel-notifications::messages.settings.actions.test_not_configured'));
         }
     }
 }
