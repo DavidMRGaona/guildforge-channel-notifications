@@ -404,7 +404,7 @@ final class WhatsAppChannelTest extends ModuleTestCase
 
     private function mockSettingsService(string $guildName): void
     {
-        $settingsService = $this->createMock(SettingsServiceInterface::class);
+        $settingsService = $this->createStub(SettingsServiceInterface::class);
         $settingsService->method('get')->willReturn($guildName);
         $this->app->instance(SettingsServiceInterface::class, $settingsService);
     }

@@ -27,7 +27,7 @@ final class ContentPublishedObserverTest extends ModuleTestCase
     {
         parent::setUp();
 
-        $configService = $this->createMock(ChannelConfigServiceInterface::class);
+        $configService = $this->createStub(ChannelConfigServiceInterface::class);
         $configService->method('isChannelEnabled')->willReturn(true);
         $configService->method('getEnabledContentTypes')->willReturn([
             ContentType::Event,

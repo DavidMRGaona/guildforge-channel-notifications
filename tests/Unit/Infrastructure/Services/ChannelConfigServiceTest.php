@@ -120,7 +120,10 @@ final class ChannelConfigServiceTest extends TestCase
 
     public function test_get_channel_credentials_for_whatsapp(): void
     {
-        $this->settings
+        // Several settings are read, so a stub answers them all instead of the shared mock
+        $this->settings->expects($this->never())->method($this->anything());
+        $settings = $this->createStub(SettingsServiceInterface::class);
+        $settings
             ->method('get')
             ->willReturnCallback(static fn (string $key, mixed $default = null): mixed => match ($key) {
                 'notifications_whatsapp_phone_number_id' => '1234567890',
@@ -128,7 +131,7 @@ final class ChannelConfigServiceTest extends TestCase
                 default => $default,
             });
 
-        $this->settings
+        $settings
             ->method('getEncrypted')
             ->willReturnCallback(static fn (string $key, mixed $default = ''): mixed => match ($key) {
                 'notifications_whatsapp_access_token' => 'EAAx...',
@@ -136,7 +139,7 @@ final class ChannelConfigServiceTest extends TestCase
                 default => $default,
             });
 
-        $credentials = $this->service->getChannelCredentials(NotificationChannel::WhatsApp);
+        $credentials = (new ChannelConfigService($settings))->getChannelCredentials(NotificationChannel::WhatsApp);
 
         $this->assertSame('EAAx...', $credentials['access_token']);
         $this->assertSame('1234567890', $credentials['phone_number_id']);
