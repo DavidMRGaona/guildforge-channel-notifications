@@ -45,7 +45,7 @@ El módulo no tiene componentes Vue, así que no hay assets que compilar.
 
 ## Configuración
 
-Al habilitarlo aparece **Notificaciones a canales** en el grupo **Configuración** del panel. Solo pueden abrir la página los administradores.
+Al habilitarlo aparece **Notificaciones a canales** en el grupo **Configuración** del panel. Pueden abrir la página los administradores y los usuarios con el permiso `notifications.manage` (ver [Permisos](#permisos)).
 
 La página tiene una pestaña por canal. En cada una:
 
@@ -123,7 +123,11 @@ Los fallos de envío se registran en el log y no interrumpen el resto de canales
 |---------|-------------|
 | `notifications.manage` | Gestionar notificaciones a canales |
 
-El módulo registra el permiso (como `channel-notifications:notifications.manage`, propuesto para el rol `admin`), pero la página solo comprueba que el usuario sea administrador.
+El permiso se guarda como `channel-notifications:notifications.manage` y es el que comprueba la página de configuración, tanto al abrirla y mostrarla en la navegación como al guardar o enviar una prueba.
+
+- Los administradores tienen siempre acceso, porque el rol `admin` tiene todos los permisos.
+- Para dar acceso a otro usuario, asigna el permiso a uno de sus roles desde el editor de roles del panel. El usuario necesita además poder entrar en el panel (rol `admin` o `editor`).
+- El rol propuesto es `admin`; habilitar el módulo no asigna el permiso a ningún otro rol.
 
 ## Claves de configuración
 
