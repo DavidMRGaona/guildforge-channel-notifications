@@ -28,6 +28,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_is_channel_enabled_returns_true_when_setting_is_1(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_telegram_enabled', '0')
             ->willReturn('1');
@@ -40,6 +41,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_is_channel_enabled_returns_false_when_setting_is_0(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_discord_enabled', '0')
             ->willReturn('0');
@@ -52,6 +54,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_is_channel_enabled_returns_true_when_setting_is_true_string(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_slack_enabled', '0')
             ->willReturn('true');
@@ -64,6 +67,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_is_channel_enabled_returns_true_when_setting_is_boolean_true(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_whatsapp_enabled', '0')
             ->willReturn(true);
@@ -76,11 +80,13 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_channel_credentials_for_telegram(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('getEncrypted')
             ->with('notifications_telegram_bot_token', '')
             ->willReturn('bot123456:ABC-DEF');
 
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_telegram_chat_id', '')
             ->willReturn('-100123456789');
@@ -95,6 +101,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_channel_credentials_for_discord(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('getEncrypted')
             ->with('notifications_discord_webhook_url', '')
             ->willReturn('https://discord.com/api/webhooks/123/abc');
@@ -108,6 +115,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_channel_credentials_for_slack(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('getEncrypted')
             ->with('notifications_slack_webhook_url', '')
             ->willReturn('https://hooks.slack.com/services/T00/B00/xxx');
@@ -151,6 +159,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_enabled_content_types_parses_json(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_telegram_content_types', '[]')
             ->willReturn('["event","article"]');
@@ -165,6 +174,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_enabled_content_types_returns_empty_for_invalid_json(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_discord_content_types', '[]')
             ->willReturn('not-json');
@@ -177,6 +187,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_enabled_content_types_returns_empty_for_empty_array(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_slack_content_types', '[]')
             ->willReturn('[]');
@@ -189,6 +200,7 @@ final class ChannelConfigServiceTest extends TestCase
     public function test_get_template_returns_custom_when_saved(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_template_telegram_event')
             ->willReturn('Custom: {title} at {guild_name}');

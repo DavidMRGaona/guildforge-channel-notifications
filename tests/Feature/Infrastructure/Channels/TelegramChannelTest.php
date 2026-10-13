@@ -136,7 +136,8 @@ final class TelegramChannelTest extends ModuleTestCase
     private function mockConfigService(string $botToken, string $chatId, string $template): void
     {
         $configService = $this->createMock(ChannelConfigServiceInterface::class);
-        $configService->method('getChannelCredentials')
+        $configService->expects($this->once())
+            ->method('getChannelCredentials')
             ->with(NotificationChannel::Telegram)
             ->willReturn([
                 'bot_token' => $botToken,

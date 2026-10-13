@@ -37,6 +37,7 @@ final class ChannelConfigServiceTemplateFallbackTest extends TestCase
     public function test_get_template_falls_back_when_empty(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_template_telegram_event')
             ->willReturn(null);
@@ -49,6 +50,7 @@ final class ChannelConfigServiceTemplateFallbackTest extends TestCase
     public function test_get_template_does_not_return_custom_when_value_is_empty_string(): void
     {
         $this->settings
+            ->expects($this->once())
             ->method('get')
             ->with('notifications_template_telegram_article')
             ->willReturn('');

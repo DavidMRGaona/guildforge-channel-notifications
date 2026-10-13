@@ -389,7 +389,8 @@ final class WhatsAppChannelTest extends ModuleTestCase
         string $webhookUrl = '',
     ): void {
         $configService = $this->createMock(ChannelConfigServiceInterface::class);
-        $configService->method('getChannelCredentials')
+        $configService->expects($this->once())
+            ->method('getChannelCredentials')
             ->with(NotificationChannel::WhatsApp)
             ->willReturn([
                 'access_token' => $accessToken,

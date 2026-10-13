@@ -115,7 +115,8 @@ final class DiscordChannelTest extends ModuleTestCase
     private function mockConfigService(string $webhookUrl, string $template): void
     {
         $configService = $this->createMock(ChannelConfigServiceInterface::class);
-        $configService->method('getChannelCredentials')
+        $configService->expects($this->once())
+            ->method('getChannelCredentials')
             ->with(NotificationChannel::Discord)
             ->willReturn([
                 'webhook_url' => $webhookUrl,
