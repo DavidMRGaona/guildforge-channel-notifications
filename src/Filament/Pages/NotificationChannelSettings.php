@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Actions\Action;
 use RuntimeException;
 use App\Application\Services\SettingsServiceInterface;
+use App\Filament\Concerns\ChecksPermissions;
 use App\Filament\Concerns\ManagesPageSettings;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
@@ -36,8 +37,15 @@ use Modules\ChannelNotifications\Infrastructure\Services\TemplateRenderer;
  */
 final class NotificationChannelSettings extends Page implements HasForms
 {
+    use ChecksPermissions;
     use InteractsWithForms;
     use ManagesPageSettings;
+
+    /**
+     * Permission registered by the module provider ("notifications.manage"),
+     * stored by the core with the module prefix.
+     */
+    public const string MANAGE_PERMISSION = 'channel-notifications:notifications.manage';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-bell-alert';
 
@@ -67,7 +75,7 @@ final class NotificationChannelSettings extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->isAdmin() ?? false;
+        return self::userCan(self::MANAGE_PERMISSION);
     }
 
     /**
