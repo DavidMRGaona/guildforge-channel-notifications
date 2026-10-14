@@ -8,6 +8,8 @@ use App\Application\Authorization\Services\PermissionRegistryInterface;
 use App\Application\Services\SettingsServiceInterface;
 use Livewire\Livewire;
 use App\Infrastructure\Persistence\Eloquent\Models\UserModel;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
 use Tests\Support\Authorization\CreatesUsersWithPermissions;
 use Tests\Support\Modules\InteractsWithModulePanel;
@@ -42,6 +44,39 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
 
         $this->assertTrue(NotificationChannelSettings::canAccess());
         Livewire::test(NotificationChannelSettings::class)->assertOk();
+    }
+
+    public function test_a_user_with_the_manage_permission_can_save_the_settings(): void
+    {
+        $this->actingAs($this->editorWithPermissions(['channel-notifications:notifications.manage']));
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_telegram_enabled' => true,
+                'notifications_telegram_chat_id' => '-100456',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('-100456', app(SettingsServiceInterface::class)->get('notifications_telegram_chat_id'));
+    }
+
+    public function test_a_user_with_the_manage_permission_can_send_a_test_notification(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
+        $this->actingAs($this->editorWithPermissions(['channel-notifications:notifications.manage']));
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_telegram_enabled' => true,
+                'notifications_telegram_bot_token' => 'test-token',
+                'notifications_telegram_chat_id' => '-100456',
+            ])
+            ->call('sendTest', 'telegram', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertSent(static fn (Request $request): bool => $request->url() === 'https://api.telegram.org/bottest-token/sendMessage'
+            && $request['chat_id'] === '-100456');
     }
 
     public function test_a_user_without_the_manage_permission_cannot_access_the_settings_page(): void
