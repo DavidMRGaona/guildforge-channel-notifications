@@ -154,15 +154,18 @@ final class ContentPublishedObserver
         $nonMemberPrice = $model->getAttribute('non_member_price');
 
         if ($memberPrice === null && $nonMemberPrice === null) {
-            return 'Gratis';
+            return __('channel-notifications::messages.prices.free');
         }
 
         if ($memberPrice !== null && $nonMemberPrice !== null && $memberPrice !== $nonMemberPrice) {
-            return "Socios: {$memberPrice}€ · No socios: {$nonMemberPrice}€";
+            return __('channel-notifications::messages.prices.member_and_non_member', [
+                'member_price' => (string) $memberPrice,
+                'non_member_price' => (string) $nonMemberPrice,
+            ]);
         }
 
-        $price = $memberPrice ?? $nonMemberPrice;
-
-        return "{$price}€";
+        return __('channel-notifications::messages.prices.single', [
+            'price' => (string) ($memberPrice ?? $nonMemberPrice),
+        ]);
     }
 }

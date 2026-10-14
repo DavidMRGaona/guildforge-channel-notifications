@@ -84,6 +84,13 @@ return [
         'photo_count' => 'Número de fotos de la galería',
     ],
 
+    // Event price shown in the {price} placeholder
+    'prices' => [
+        'free' => 'Gratis',
+        'member_and_non_member' => 'Socios: :member_price€ · No socios: :non_member_price€',
+        'single' => ':price€',
+    ],
+
     // Permissions
     'permissions' => [
         'notifications' => [
