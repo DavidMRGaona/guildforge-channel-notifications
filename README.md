@@ -24,7 +24,7 @@ El core rechaza el módulo si no se cumplen (`module.json` → `requires`).
 
 1. Descarga `channel-notifications-X.Y.Z.zip` de la última release de `DavidMRGaona/guildforge-channel-notifications` en GitHub.
 2. En el panel, activa el modo mantenimiento (**Configuración del sitio** → pestaña **Mantenimiento**).
-3. En **Módulos**, pulsa **Instalar**, sube el ZIP y confirma con **Instalar / actualizar**.
+3. En **Módulos**, pulsa **Instalar / actualizar** y sube el ZIP.
 4. Pulsa **Habilitar** en el módulo.
 5. Desactiva el modo mantenimiento.
 
