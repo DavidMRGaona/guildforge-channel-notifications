@@ -230,4 +230,49 @@ final class ContentPublishedObserverTest extends ModuleTestCase
             },
         );
     }
+
+    public function test_the_price_texts_come_from_the_module_translations(): void
+    {
+        $this->overrideTranslations([
+            'messages.prices.free' => 'Free entry',
+            'messages.prices.member_and_non_member' => 'Members :member_price · Others :non_member_price',
+            'messages.prices.single' => ':price EUR',
+        ]);
+
+        EventModel::factory()->create(['is_published' => true, 'member_price' => null, 'non_member_price' => null]);
+        EventModel::factory()->create(['is_published' => true, 'member_price' => 10, 'non_member_price' => 15]);
+        EventModel::factory()->create(['is_published' => true, 'member_price' => 8, 'non_member_price' => 8]);
+
+        $prices = [];
+        Notification::assertSentTo(
+            new NotificationTarget,
+            function (ContentPublishedNotification $notification) use (&$prices): bool {
+                $prices[] = $notification->getMessage()->extraData['price'];
+
+                return true;
+            },
+        );
+
+        $this->assertSame(['Free entry', 'Members 10.00 · Others 15.00', '8.00 EUR'], $prices);
+    }
+
+    public function test_the_spanish_price_texts(): void
+    {
+        $this->assertSame('Gratis', __('channel-notifications::messages.prices.free'));
+        $this->assertSame(
+            'Socios: 10€ · No socios: 15€',
+            __('channel-notifications::messages.prices.member_and_non_member', ['member_price' => '10', 'non_member_price' => '15']),
+        );
+        $this->assertSame('8€', __('channel-notifications::messages.prices.single', ['price' => '8']));
+    }
+
+    /**
+     * @param  array<string, string>  $lines
+     */
+    private function overrideTranslations(array $lines): void
+    {
+        // Load the module's group first so the overrides are merged into it
+        __('channel-notifications::messages.title');
+        app('translator')->addLines($lines, app()->getLocale(), 'channel-notifications');
+    }
 }
