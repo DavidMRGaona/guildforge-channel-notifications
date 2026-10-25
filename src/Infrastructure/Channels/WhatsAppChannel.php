@@ -45,7 +45,7 @@ final class WhatsAppChannel
         }
 
         return array_values(array_filter(
-            array_map('trim', explode(',', $recipients)),
+            array_map(trim(...), explode(',', $recipients)),
             static fn (string $r): bool => $r !== '',
         ));
     }

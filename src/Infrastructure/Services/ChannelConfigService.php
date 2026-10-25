@@ -19,7 +19,7 @@ final readonly class ChannelConfigService implements ChannelConfigServiceInterfa
     {
         $value = $this->settings->get($channel->settingsPrefix().'_enabled', '0');
 
-        return $value === '1' || $value === 'true' || $value === true;
+        return in_array($value, ['1', 'true', true], true);
     }
 
     /**
@@ -60,7 +60,7 @@ final readonly class ChannelConfigService implements ChannelConfigServiceInterfa
 
         return array_filter(
             array_map(
-                static fn (string $value): ?ContentType => ContentType::tryFrom($value),
+                ContentType::tryFrom(...),
                 $values,
             ),
         );

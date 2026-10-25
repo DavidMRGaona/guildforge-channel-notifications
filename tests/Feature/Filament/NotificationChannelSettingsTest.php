@@ -6,10 +6,10 @@ namespace Modules\ChannelNotifications\Tests\Feature\Filament;
 
 use App\Application\Authorization\Services\PermissionRegistryInterface;
 use App\Application\Services\SettingsServiceInterface;
-use Livewire\Livewire;
 use App\Infrastructure\Persistence\Eloquent\Models\UserModel;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Livewire\Livewire;
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
 use Tests\Support\Authorization\CreatesUsersWithPermissions;
 use Tests\Support\Modules\InteractsWithModulePanel;

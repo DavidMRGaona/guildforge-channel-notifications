@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Tests\Unit\Domain\Enums;
 
-use stdClass;
 use App\Infrastructure\Persistence\Eloquent\Models\ArticleModel;
 use App\Infrastructure\Persistence\Eloquent\Models\EventModel;
 use App\Infrastructure\Persistence\Eloquent\Models\GalleryModel;
 use InvalidArgumentException;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class ContentTypeTest extends TestCase
 {
