@@ -4,18 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Filament\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Tabs;
-use Throwable;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Actions;
-use Filament\Actions\Action;
-use RuntimeException;
 use App\Application\Services\SettingsServiceInterface;
 use App\Filament\Concerns\ChecksPermissions;
 use App\Filament\Concerns\ManagesPageSettings;
+use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,15 +17,24 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Domain\Enums\NotificationChannel;
 use Modules\ChannelNotifications\Domain\ValueObjects\NotificationMessage;
 use Modules\ChannelNotifications\Infrastructure\Services\TemplateRenderer;
+use RuntimeException;
+use Throwable;
 
 /**
- * @property \Filament\Schemas\Schema $form
+ * @property Schema $form
  */
 final class NotificationChannelSettings extends Page implements HasForms
 {
@@ -47,7 +48,7 @@ final class NotificationChannelSettings extends Page implements HasForms
      */
     public const string MANAGE_PERMISSION = 'channel-notifications:notifications.manage';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-bell-alert';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
 
     protected static ?int $navigationSort = 95;
 
@@ -274,7 +275,7 @@ final class NotificationChannelSettings extends Page implements HasForms
     }
 
     /**
-     * @return array<\Filament\Schemas\Components\Component>
+     * @return array<Component>
      */
     private function getCredentialFields(NotificationChannel $channel): array
     {
@@ -423,7 +424,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         $template = trim((string) ($state[$key] ?? ''));
 
         if ($template === '') {
-            $template = __("channel-notifications::messages.defaults.{$channel->value}.{$contentType->value}");
+            return __("channel-notifications::messages.defaults.{$channel->value}.{$contentType->value}");
         }
 
         return $template;
@@ -498,7 +499,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         $webhookUrl = $state['notifications_whatsapp_webhook_url'] ?? '';
 
         $recipients = array_values(array_filter(
-            array_map('trim', explode(',', $recipientsRaw)),
+            array_map(trim(...), explode(',', $recipientsRaw)),
             static fn (string $r): bool => $r !== '',
         ));
 
