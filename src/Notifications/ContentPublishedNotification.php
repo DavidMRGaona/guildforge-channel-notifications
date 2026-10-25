@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Notifications;
 
-use App\Application\Services\SettingsServiceInterface;
+use App\Application\Services\SiteBrandingServiceInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -108,7 +108,7 @@ final class ContentPublishedNotification extends Notification implements ShouldQ
         $config = app(ChannelConfigServiceInterface::class);
         $credentials = $config->getChannelCredentials(NotificationChannel::WhatsApp);
         $template = $config->getTemplate(NotificationChannel::WhatsApp, $this->message->contentType);
-        $guildName = (string) app(SettingsServiceInterface::class)->get('guild_name', 'GuildForge');
+        $guildName = app(SiteBrandingServiceInterface::class)->siteName();
         $renderer = app(TemplateRenderer::class);
         $text = $renderer->render($template, $this->message, $guildName);
 
@@ -129,8 +129,8 @@ final class ContentPublishedNotification extends Notification implements ShouldQ
     private function renderTemplate(string $template): string
     {
         $renderer = app(TemplateRenderer::class);
-        $guildName = app(SettingsServiceInterface::class)->get('guild_name', 'GuildForge');
+        $guildName = app(SiteBrandingServiceInterface::class)->siteName();
 
-        return $renderer->render($template, $this->message, (string) $guildName);
+        return $renderer->render($template, $this->message, $guildName);
     }
 }

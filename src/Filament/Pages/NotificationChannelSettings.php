@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\ChannelNotifications\Filament\Pages;
 
 use App\Application\Services\SettingsServiceInterface;
+use App\Application\Services\SiteBrandingServiceInterface;
 use App\Filament\Concerns\ChecksPermissions;
 use App\Filament\Concerns\ManagesPageSettings;
 use Filament\Actions\Action;
@@ -366,8 +367,7 @@ final class NotificationChannelSettings extends Page implements HasForms
      */
     private function dispatchTestNotification(NotificationChannel $channel, ContentType $contentType, array $state): void
     {
-        $settingsService = app(SettingsServiceInterface::class);
-        $guildName = (string) $settingsService->get('guild_name', 'GuildForge');
+        $guildName = app(SiteBrandingServiceInterface::class)->siteName();
 
         $message = $this->getTestMessage($contentType);
         $template = $this->getTemplateFromState($state, $channel, $contentType);
@@ -529,7 +529,7 @@ final class NotificationChannelSettings extends Page implements HasForms
                     'content_type' => 'test',
                     'title' => $title,
                     'content_url' => url('/'),
-                    'guild_name' => (string) app(SettingsServiceInterface::class)->get('guild_name', 'GuildForge'),
+                    'guild_name' => app(SiteBrandingServiceInterface::class)->siteName(),
                 ],
             ]);
 
