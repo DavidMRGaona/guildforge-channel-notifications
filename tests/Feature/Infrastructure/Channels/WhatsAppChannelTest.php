@@ -46,14 +46,12 @@ final class WhatsAppChannelTest extends ModuleTestCase
         $channel = new WhatsAppChannel;
         $channel->send(new NotificationTarget, $notification);
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request->hasHeader('Authorization', 'Bearer EAAx-test-token')
-                && $request['messaging_product'] === 'whatsapp'
-                && $request['to'] === '+34600000000'
-                && $request['type'] === 'text'
-                && isset($request['text']['body']);
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request->hasHeader('Authorization', 'Bearer EAAx-test-token')
+            && $request['messaging_product'] === 'whatsapp'
+            && $request['to'] === '+34600000000'
+            && $request['type'] === 'text'
+            && isset($request['text']['body']));
     }
 
     public function test_it_sends_image_message_when_image_present(): void
@@ -80,13 +78,11 @@ final class WhatsAppChannelTest extends ModuleTestCase
         $channel = new WhatsAppChannel;
         $channel->send(new NotificationTarget, $notification);
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['messaging_product'] === 'whatsapp'
-                && $request['to'] === '+34600000000'
-                && $request['type'] === 'image'
-                && $request['image']['link'] === 'https://example.com/image.jpg';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['messaging_product'] === 'whatsapp'
+            && $request['to'] === '+34600000000'
+            && $request['type'] === 'image'
+            && $request['image']['link'] === 'https://example.com/image.jpg');
     }
 
     public function test_it_does_not_send_when_access_token_empty(): void
@@ -260,20 +256,14 @@ final class WhatsAppChannelTest extends ModuleTestCase
 
         Http::assertSentCount(3);
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['to'] === '+34600000001';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['to'] === '+34600000001');
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['to'] === '+34600000002';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['to'] === '+34600000002');
 
-        Http::assertSent(function (Request $request): bool {
-            return $request->url() === 'https://bot.example.com/webhook'
-                && $request->data()['channel'] === 'whatsapp';
-        });
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://bot.example.com/webhook'
+            && $request->data()['channel'] === 'whatsapp');
     }
 
     public function test_it_continues_on_partial_failure(): void
@@ -333,15 +323,11 @@ final class WhatsAppChannelTest extends ModuleTestCase
 
         Http::assertSentCount(2);
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['to'] === '+34600000001';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['to'] === '+34600000001');
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['to'] === '+34600000002';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['to'] === '+34600000002');
     }
 
     public function test_it_skips_empty_entries_in_recipients(): void
@@ -370,15 +356,11 @@ final class WhatsAppChannelTest extends ModuleTestCase
 
         Http::assertSentCount(2);
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['to'] === '+34600000001';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['to'] === '+34600000001');
 
-        Http::assertSent(function (Request $request): bool {
-            return str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
-                && $request['to'] === '+34600000002';
-        });
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'graph.facebook.com/v21.0/1234567890/messages')
+            && $request['to'] === '+34600000002');
     }
 
     private function mockConfigService(
