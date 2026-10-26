@@ -15,10 +15,12 @@ Módulo de GuildForge que avisa en canales externos (Telegram, Discord, Slack y 
 
 ## Requisitos
 
-- GuildForge core `^3.0`
+- GuildForge core `^3.22`
 - PHP >= 8.5, Laravel >= 13, Filament 5
 
 El core rechaza el módulo si no se cumplen (`module.json` → `requires`).
+
+El módulo no tiene tablas propias: las fechas de los eventos llegan en la zona de almacenamiento del sitio (UTC cuando el core lo indica) y los mensajes las muestran en la zona de visualización (Europe/Madrid). Declara `"storesUtc": true`.
 
 ## Instalación
 

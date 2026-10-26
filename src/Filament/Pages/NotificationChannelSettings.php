@@ -6,6 +6,7 @@ namespace Modules\ChannelNotifications\Filament\Pages;
 
 use App\Application\Services\SettingsServiceInterface;
 use App\Application\Services\SiteBrandingServiceInterface;
+use App\Application\Services\TimezoneServiceInterface;
 use App\Filament\Concerns\ChecksPermissions;
 use App\Filament\Concerns\ManagesPageSettings;
 use Filament\Actions\Action;
@@ -523,7 +524,7 @@ final class NotificationChannelSettings extends Page implements HasForms
         if ($webhookUrl !== '') {
             $response = Http::timeout(10)->post($webhookUrl, [
                 'channel' => 'whatsapp',
-                'timestamp' => now()->toIso8601String(),
+                'timestamp' => app(TimezoneServiceInterface::class)->iso(now()),
                 'message' => ['text' => $text, 'image_url' => null],
                 'metadata' => [
                     'content_type' => 'test',

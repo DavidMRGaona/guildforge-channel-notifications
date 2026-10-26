@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Infrastructure\Observers;
 
+use App\Application\Services\TimezoneServiceInterface;
 use App\Infrastructure\Persistence\Eloquent\Models\ArticleModel;
 use App\Infrastructure\Persistence\Eloquent\Models\EventModel;
 use App\Infrastructure\Persistence\Eloquent\Models\GalleryModel;
@@ -16,8 +17,10 @@ use Modules\ChannelNotifications\Domain\ValueObjects\NotificationMessage;
 use Modules\ChannelNotifications\Notifications\ContentPublishedNotification;
 use Modules\ChannelNotifications\Notifications\NotificationTarget;
 
-final class ContentPublishedObserver
+final readonly class ContentPublishedObserver
 {
+    public function __construct(private TimezoneServiceInterface $timezone) {}
+
     public function created(Model $model): void
     {
         if ($model->getAttribute('is_published') === true) {
@@ -117,8 +120,8 @@ final class ContentPublishedObserver
         /** @var EventModel $model */
         return [
             'tags' => $this->getTagNames($model),
-            'date' => $model->start_date->format('d/m/Y H:i'),
-            'end_date' => $model->end_date->format('d/m/Y H:i'),
+            'date' => $this->timezone->format($model->start_date),
+            'end_date' => $this->timezone->format($model->end_date),
             'location' => (string) ($model->location ?? ''),
             'price' => $this->formatPrice($model),
         ];
