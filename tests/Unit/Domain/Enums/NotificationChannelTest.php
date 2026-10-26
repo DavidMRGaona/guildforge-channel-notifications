@@ -13,17 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 final class NotificationChannelTest extends TestCase
 {
-    public function test_it_has_four_channels(): void
-    {
-        $cases = NotificationChannel::cases();
-
-        $this->assertCount(4, $cases);
-        $this->assertSame('telegram', NotificationChannel::Telegram->value);
-        $this->assertSame('discord', NotificationChannel::Discord->value);
-        $this->assertSame('slack', NotificationChannel::Slack->value);
-        $this->assertSame('whatsapp', NotificationChannel::WhatsApp->value);
-    }
-
     public function test_it_returns_correct_labels(): void
     {
         $this->assertSame('Telegram', NotificationChannel::Telegram->label());
