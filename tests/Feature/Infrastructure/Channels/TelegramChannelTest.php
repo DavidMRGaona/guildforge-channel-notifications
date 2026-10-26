@@ -43,11 +43,9 @@ final class TelegramChannelTest extends ModuleTestCase
         $channel = new TelegramChannel;
         $channel->send(new NotificationTarget, $notification);
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'api.telegram.org/bottest-token/sendMessage')
-                && $request['chat_id'] === '123456'
-                && $request['parse_mode'] === 'HTML';
-        });
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'api.telegram.org/bottest-token/sendMessage')
+            && $request['chat_id'] === '123456'
+            && $request['parse_mode'] === 'HTML');
     }
 
     public function test_it_sends_photo_when_image_url_present(): void
@@ -73,12 +71,10 @@ final class TelegramChannelTest extends ModuleTestCase
         $channel = new TelegramChannel;
         $channel->send(new NotificationTarget, $notification);
 
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'api.telegram.org/bottest-token/sendPhoto')
-                && $request['chat_id'] === '123456'
-                && $request['photo'] === 'https://example.com/image.jpg'
-                && $request['parse_mode'] === 'HTML';
-        });
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'api.telegram.org/bottest-token/sendPhoto')
+            && $request['chat_id'] === '123456'
+            && $request['photo'] === 'https://example.com/image.jpg'
+            && $request['parse_mode'] === 'HTML');
     }
 
     public function test_it_does_not_send_when_bot_token_empty(): void
