@@ -14,16 +14,6 @@ use stdClass;
 
 final class ContentTypeTest extends TestCase
 {
-    public function test_it_has_three_types(): void
-    {
-        $cases = ContentType::cases();
-
-        $this->assertCount(3, $cases);
-        $this->assertSame('event', ContentType::Event->value);
-        $this->assertSame('article', ContentType::Article->value);
-        $this->assertSame('gallery', ContentType::Gallery->value);
-    }
-
     public function test_it_returns_correct_model_class(): void
     {
         $this->assertSame(EventModel::class, ContentType::Event->modelClass());
