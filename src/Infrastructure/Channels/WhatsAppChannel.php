@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Infrastructure\Channels;
 
+use App\Application\Services\TimezoneServiceInterface;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -93,7 +94,7 @@ final class WhatsAppChannel
         try {
             $response = Http::timeout(10)->post($webhookUrl, [
                 'channel' => 'whatsapp',
-                'timestamp' => now()->toIso8601String(),
+                'timestamp' => app(TimezoneServiceInterface::class)->iso(now()),
                 'message' => [
                     'text' => $data['text'],
                     'image_url' => $data['image_url'],
