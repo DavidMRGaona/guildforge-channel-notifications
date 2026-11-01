@@ -79,6 +79,25 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
             && $request['chat_id'] === '-100456');
     }
 
+    public function test_the_telegram_test_message_escapes_the_values_for_html(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
+        $this->app->make(SettingsServiceInterface::class)->set('guild_name', 'Dados & Rol');
+        $this->actingAs($this->editorWithPermissions(['channel-notifications:notifications.manage']));
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_telegram_enabled' => true,
+                'notifications_telegram_bot_token' => 'test-token',
+                'notifications_telegram_chat_id' => '-100456',
+                'notifications_template_telegram_event' => '<b>{guild_name}</b>',
+            ])
+            ->call('sendTest', 'telegram', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertSent(static fn (Request $request): bool => $request['text'] === '<b>Dados &amp; Rol</b>');
+    }
+
     public function test_a_user_without_the_manage_permission_cannot_access_the_settings_page(): void
     {
         $this->actingAs(UserModel::factory()->editor()->create());
