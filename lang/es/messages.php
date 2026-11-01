@@ -38,6 +38,7 @@ return [
             'template_event' => 'Plantilla de eventos',
             'template_article' => 'Plantilla de artículos',
             'template_gallery' => 'Plantilla de galerías',
+            'template_survey' => 'Plantilla de encuestas',
         ],
 
         'helpers' => [
@@ -66,6 +67,7 @@ return [
         'event' => 'Eventos',
         'article' => 'Artículos',
         'gallery' => 'Galerías',
+        'survey' => 'Encuestas',
     ],
 
     // Placeholders
@@ -82,6 +84,8 @@ return [
         'price' => 'Precio del evento',
         'author' => 'Autor del artículo',
         'photo_count' => 'Número de fotos de la galería',
+        'close_date' => 'Cierre de la encuesta',
+        'survey_kind' => '«Nueva encuesta» o «Nuevo sondeo»',
     ],
 
     // Event price shown in the {price} placeholder
@@ -89,6 +93,15 @@ return [
         'free' => 'Gratis',
         'member_and_non_member' => 'Socios: :member_price€ · No socios: :non_member_price€',
         'single' => ':price€',
+    ],
+
+    // General surveys announced when they open (core event GeneralSurveyOpened)
+    'surveys' => [
+        'no_close_date' => 'Sin fecha de cierre',
+        'kind' => [
+            'survey' => 'Nueva encuesta',
+            'poll' => 'Nuevo sondeo',
+        ],
     ],
 
     // Permissions
@@ -104,21 +117,25 @@ return [
             'event' => "<b>{guild_name}</b> — Nuevo evento\n\n📌 <b>{title}</b>\n📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Ver evento</a>",
             'article' => "<b>{guild_name}</b> — Nuevo artículo\n\n📰 <b>{title}</b>\n✍️ {author}\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Leer artículo</a>",
             'gallery' => "<b>{guild_name}</b> — Nueva galería\n\n📸 <b>{title}</b>\n🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Ver galería</a>",
+            'survey' => "<b>{guild_name}</b> — {survey_kind}\n\n🗳 <b>{title}</b>\n⏳ Cierre: {close_date}\n\n{excerpt}\n\n🔗 <a href=\"{url}\">Responder</a>",
         ],
         'discord' => [
             'event' => "📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}",
             'article' => "✍️ {author}\n\n{excerpt}\n\n🏷 {tags}",
             'gallery' => "🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}",
+            'survey' => "{survey_kind}\n⏳ Cierre: {close_date}\n\n{excerpt}",
         ],
         'slack' => [
             'event' => "📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}",
             'article' => "✍️ {author}\n\n{excerpt}\n\n🏷 {tags}",
             'gallery' => "🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}",
+            'survey' => "{survey_kind}\n⏳ Cierre: {close_date}\n\n{excerpt}",
         ],
         'whatsapp' => [
             'event' => "{guild_name} — Nuevo evento\n\n📌 {title}\n📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
             'article' => "{guild_name} — Nuevo artículo\n\n📰 {title}\n✍️ {author}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
             'gallery' => "{guild_name} — Nueva galería\n\n📸 {title}\n🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
+            'survey' => "{guild_name} — {survey_kind}\n\n🗳 {title}\n⏳ Cierre: {close_date}\n\n{excerpt}\n\n👉 {url}",
         ],
     ],
 
@@ -144,6 +161,11 @@ return [
             'excerpt' => 'Recopilación de las mejores fotos del torneo del fin de semana.',
             'photo_count' => '24',
             'tags' => 'fotos, torneo, galería',
+        ],
+        'survey' => [
+            'title' => 'Horario del local',
+            'excerpt' => 'Queremos saber qué días y franjas os vienen mejor para abrir el local.',
+            'close_date' => '15/03/2026 20:00',
         ],
     ],
 ];

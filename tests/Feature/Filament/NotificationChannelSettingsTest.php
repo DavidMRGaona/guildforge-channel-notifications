@@ -10,6 +10,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\UserModel;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
+use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
 use Tests\Support\Authorization\CreatesUsersWithPermissions;
 use Tests\Support\Modules\InteractsWithModulePanel;
@@ -96,6 +97,24 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
             ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
 
         Http::assertSent(static fn (Request $request): bool => $request['text'] === '<b>Dados &amp; Rol</b>');
+    }
+
+    public function test_a_survey_test_message_can_be_sent(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
+        $this->actingAs($this->editorWithPermissions(['channel-notifications:notifications.manage']));
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_telegram_enabled' => true,
+                'notifications_telegram_bot_token' => 'test-token',
+                'notifications_telegram_chat_id' => '-100456',
+                'notifications_telegram_content_types' => [ContentType::Survey->value],
+            ])
+            ->call('sendTest', 'telegram', 'survey')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertSent(static fn (Request $request): bool => str_contains((string) $request['text'], (string) __('channel-notifications::messages.test.survey.title')));
     }
 
     public function test_a_user_without_the_manage_permission_cannot_access_the_settings_page(): void

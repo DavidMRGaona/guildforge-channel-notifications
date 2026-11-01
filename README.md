@@ -1,13 +1,14 @@
 # Notificaciones a canales
 
-Módulo de GuildForge que avisa en canales externos (Telegram, Discord, Slack y WhatsApp) cuando se publica contenido. Detecta la publicación de eventos, artículos y galerías y envía a cada canal un mensaje con imagen, extracto y enlace.
+Módulo de GuildForge que avisa en canales externos (Telegram, Discord, Slack y WhatsApp) cuando se publica contenido. Detecta la publicación de eventos, artículos y galerías y envía a cada canal un mensaje con imagen, extracto y enlace. También anuncia las encuestas generales que se abren con «Anunciar en los canales», si el módulo de encuestas está instalado.
 
 ## Características
 
 - **Cuatro canales**: Telegram, Discord, Slack y WhatsApp.
 - **Detección automática**: un observer de Eloquent detecta cuándo `is_published` pasa a `true`.
-- **Canal × tipo de contenido**: cada canal recibe solo los tipos que se marquen (eventos, artículos, galerías o cualquier combinación).
-- **Plantillas personalizables**: 12 plantillas (4 canales × 3 tipos de contenido) con placeholders; si una plantilla está vacía se usa la plantilla por defecto.
+- **Encuestas**: escucha el evento del core `GeneralSurveyOpened`, que despacha el módulo de encuestas; ninguno de los dos importa al otro.
+- **Canal × tipo de contenido**: cada canal recibe solo los tipos que se marquen (eventos, artículos, galerías, encuestas o cualquier combinación).
+- **Plantillas personalizables**: 16 plantillas (4 canales × 4 tipos de contenido) con placeholders; si una plantilla está vacía se usa la plantilla por defecto.
 - **Envío en cola**: la notificación implementa `ShouldQueue`, así que necesita un worker de colas en marcha.
 - **Credenciales cifradas**: tokens y URLs de webhook se guardan cifrados en la tabla `settings`.
 - **Envío de prueba**: cada canal tiene un botón para mandar un mensaje de prueba desde el panel.
@@ -15,7 +16,7 @@ Módulo de GuildForge que avisa en canales externos (Telegram, Discord, Slack y 
 
 ## Requisitos
 
-- GuildForge core `^3.22`
+- GuildForge core `^3.30`
 - PHP >= 8.5, Laravel >= 13, Filament 5
 
 El core rechaza el módulo si no se cumplen (`module.json` → `requires`).
@@ -76,14 +77,16 @@ En WhatsApp se envía un mensaje por destinatario con la API de WhatsApp Cloud (
 | `{excerpt}` | Extracto (hasta 200 caracteres, sin HTML) | Todos |
 | `{url}` | Enlace al contenido | Todos |
 | `{guild_name}` | Nombre de la asociación | Todos |
-| `{image_url}` | URL de la imagen | Todos |
-| `{tags}` | Etiquetas, separadas por comas | Todos |
+| `{image_url}` | URL de la imagen | Eventos, artículos y galerías |
+| `{tags}` | Etiquetas, separadas por comas | Eventos, artículos y galerías |
 | `{date}` | Fecha y hora de inicio | Eventos |
 | `{end_date}` | Fecha y hora de fin | Eventos |
 | `{location}` | Ubicación | Eventos |
 | `{price}` | Precio (socios / no socios, o «Gratis») | Eventos |
 | `{author}` | Autor | Artículos |
 | `{photo_count}` | Número de fotos | Galerías |
+| `{close_date}` | Cierre de la encuesta, o «Sin fecha de cierre» | Encuestas |
+| `{survey_kind}` | «Nueva encuesta» o «Nuevo sondeo» | Encuestas |
 
 Las plantillas por defecto están en `lang/es/messages.php` (`defaults`).
 
@@ -96,6 +99,8 @@ El observer `ContentPublishedObserver` escucha `EventModel`, `ArticleModel` y `G
 - **`created`**: si el modelo se crea con `is_published = true`, notifica.
 - **`updated`**: si `is_published` cambia y queda en `true`, notifica.
 - Editar un contenido ya publicado sin cambiar `is_published` no genera notificación.
+
+El listener `AnnounceGeneralSurvey` escucha `GeneralSurveyOpened` (core ≥ 3.30). El módulo de encuestas lo despacha la primera vez que abre una encuesta general marcada «Anunciar en los canales». El enlace es el público de la encuesta o la página de responder; el extracto es su descripción y no lleva imagen.
 
 ### Flujo
 
@@ -114,10 +119,10 @@ Los fallos de envío se registran en el log y no interrumpen el resto de canales
 
 | Canal | Formato | Imagen |
 |-------|---------|--------|
-| Telegram | HTML (`sendPhoto` con pie de foto o `sendMessage`) | Sí |
-| Discord | Embed (título, descripción, color, enlace) | Sí |
-| Slack | Blocks (cabecera, texto, imagen, botón con enlace) | Sí |
-| WhatsApp | Texto, o imagen con pie de foto | Sí |
+| Telegram | HTML (`sendPhoto` con pie de foto o `sendMessage`); los valores de los placeholders se escapan, las etiquetas de la plantilla no | Sí, salvo en las encuestas |
+| Discord | Embed (título, descripción, color, enlace) | Sí, salvo en las encuestas |
+| Slack | Blocks (cabecera, texto, imagen, botón con enlace) | Sí, salvo en las encuestas |
+| WhatsApp | Texto, o imagen con pie de foto | Sí, salvo en las encuestas |
 
 ## Permisos
 
@@ -137,7 +142,7 @@ El módulo guarda 28 claves en la tabla `settings`:
 
 ```
 notifications_{canal}_enabled              # bool (x4)
-notifications_{canal}_content_types        # JSON ["event","article","gallery"] (x4)
+notifications_{canal}_content_types        # JSON ["event","article","gallery","survey"] (x4)
 notifications_telegram_bot_token           # cifrado
 notifications_telegram_chat_id             # texto
 notifications_discord_webhook_url          # cifrado
@@ -146,10 +151,10 @@ notifications_whatsapp_access_token        # cifrado
 notifications_whatsapp_phone_number_id     # texto
 notifications_whatsapp_recipients          # texto, números separados por comas
 notifications_whatsapp_webhook_url         # cifrado, webhook externo opcional
-notifications_template_{canal}_{tipo}      # texto con placeholders (x12)
+notifications_template_{canal}_{tipo}      # texto con placeholders (x16)
 ```
 
-`{canal}` es `telegram`, `discord`, `slack` o `whatsapp`; `{tipo}` es `event`, `article` o `gallery`.
+`{canal}` es `telegram`, `discord`, `slack` o `whatsapp`; `{tipo}` es `event`, `article`, `gallery` o `survey`.
 
 ## Arquitectura
 
@@ -172,7 +177,7 @@ channel-notifications/
 │   │       └── ChannelConfigServiceInterface.php
 │   ├── Domain/
 │   │   ├── Enums/
-│   │   │   ├── ContentType.php          # Event, Article, Gallery (+ placeholders)
+│   │   │   ├── ContentType.php          # Event, Article, Gallery, Survey (+ placeholders)
 │   │   │   └── NotificationChannel.php  # Telegram, Discord, Slack, WhatsApp
 │   │   └── ValueObjects/
 │   │       └── NotificationMessage.php  # VO inmutable con los datos del contenido
@@ -186,6 +191,8 @@ channel-notifications/
 │   │   └── Services/
 │   │       ├── ChannelConfigService.php
 │   │       └── TemplateRenderer.php
+│   ├── Listeners/
+│   │   └── AnnounceGeneralSurvey.php     # GeneralSurveyOpened → anuncio de la encuesta
 │   ├── Notifications/
 │   │   ├── ContentPublishedNotification.php  # ShouldQueue
 │   │   └── NotificationTarget.php            # Notifiable ligero

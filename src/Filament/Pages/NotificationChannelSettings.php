@@ -405,6 +405,10 @@ final class NotificationChannelSettings extends Page implements HasForms
                 'photo_count' => __("{$prefix}.photo_count"),
                 'tags' => __("{$prefix}.tags"),
             ],
+            ContentType::Survey => [
+                'close_date' => __("{$prefix}.close_date"),
+                'survey_kind' => __('channel-notifications::messages.surveys.kind.survey'),
+            ],
         };
 
         return new NotificationMessage(

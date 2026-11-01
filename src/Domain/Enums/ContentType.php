@@ -13,6 +13,7 @@ enum ContentType: string
     case Event = 'event';
     case Article = 'article';
     case Gallery = 'gallery';
+    case Survey = 'survey';
 
     public function label(): string
     {
@@ -20,18 +21,23 @@ enum ContentType: string
             self::Event => __('channel-notifications::messages.content_types.event'),
             self::Article => __('channel-notifications::messages.content_types.article'),
             self::Gallery => __('channel-notifications::messages.content_types.gallery'),
+            self::Survey => __('channel-notifications::messages.content_types.survey'),
         };
     }
 
     /**
-     * @return class-string
+     * The core model whose publication is announced; null for content announced from an event
+     * (a survey, told by the core's GeneralSurveyOpened).
+     *
+     * @return class-string|null
      */
-    public function modelClass(): string
+    public function modelClass(): ?string
     {
         return match ($this) {
             self::Event => EventModel::class,
             self::Article => ArticleModel::class,
             self::Gallery => GalleryModel::class,
+            self::Survey => null,
         };
     }
 
@@ -62,6 +68,15 @@ enum ContentType: string
             self::Gallery => array_merge($common, [
                 '{photo_count}' => __('channel-notifications::messages.placeholders.photo_count'),
             ]),
+            // A survey has no image or tags
+            self::Survey => [
+                '{title}' => $common['{title}'],
+                '{excerpt}' => $common['{excerpt}'],
+                '{url}' => $common['{url}'],
+                '{guild_name}' => $common['{guild_name}'],
+                '{close_date}' => __('channel-notifications::messages.placeholders.close_date'),
+                '{survey_kind}' => __('channel-notifications::messages.placeholders.survey_kind'),
+            ],
         };
     }
 
