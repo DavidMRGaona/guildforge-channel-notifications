@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use LogicException;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Domain\ValueObjects\NotificationMessage;
 use Modules\ChannelNotifications\Notifications\ContentPublishedNotification;
@@ -61,6 +62,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => Str::limit(strip_tags((string) $model->getAttribute('description')), 200),
             ContentType::Article => Str::limit(strip_tags((string) ($model->getAttribute('excerpt') ?: $model->getAttribute('content'))), 200),
             ContentType::Gallery => Str::limit(strip_tags((string) $model->getAttribute('description')), 200),
+            ContentType::Survey => throw $this->surveysHaveNoModel(),
         };
     }
 
@@ -70,6 +72,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => $model->getAttribute('image_public_id'),
             ContentType::Article => $model->getAttribute('featured_image_public_id'),
             ContentType::Gallery => $model instanceof GalleryModel ? $model->cover_image_public_id : null,
+            ContentType::Survey => throw $this->surveysHaveNoModel(),
         };
 
         if ($publicId === null || $publicId === '') {
@@ -87,6 +90,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => url("/eventos/{$slug}"),
             ContentType::Article => url("/articulos/{$slug}"),
             ContentType::Gallery => url("/galeria/{$slug}"),
+            ContentType::Survey => throw $this->surveysHaveNoModel(),
         };
     }
 
@@ -99,6 +103,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => $this->getEventData($model),
             ContentType::Article => $this->getArticleData($model),
             ContentType::Gallery => $this->getGalleryData($model),
+            ContentType::Survey => throw $this->surveysHaveNoModel(),
         };
     }
 
@@ -170,5 +175,14 @@ final readonly class ContentPublishedObserver
         return __('channel-notifications::messages.prices.single', [
             'price' => (string) ($memberPrice ?? $nonMemberPrice),
         ]);
+    }
+
+    /**
+     * Only core models reach the observer (ContentType::fromModelClass()): a survey is announced
+     * from the core's GeneralSurveyOpened event by AnnounceGeneralSurvey.
+     */
+    private function surveysHaveNoModel(): LogicException
+    {
+        return new LogicException('Surveys have no model to observe: they are announced from GeneralSurveyOpened.');
     }
 }

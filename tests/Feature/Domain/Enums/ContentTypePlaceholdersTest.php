@@ -46,4 +46,14 @@ final class ContentTypePlaceholdersTest extends ModuleTestCase
         $this->assertArrayHasKey('{tags}', $placeholders);
         $this->assertArrayHasKey('{photo_count}', $placeholders);
     }
+
+    public function test_survey_placeholders_have_the_closing_date_and_no_image_or_tags(): void
+    {
+        $placeholders = ContentType::Survey->placeholders();
+
+        $this->assertSame(
+            ['{title}', '{excerpt}', '{url}', '{guild_name}', '{close_date}', '{survey_kind}'],
+            array_keys($placeholders),
+        );
+    }
 }

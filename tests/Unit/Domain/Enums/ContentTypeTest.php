@@ -19,6 +19,7 @@ final class ContentTypeTest extends TestCase
         $this->assertSame(EventModel::class, ContentType::Event->modelClass());
         $this->assertSame(ArticleModel::class, ContentType::Article->modelClass());
         $this->assertSame(GalleryModel::class, ContentType::Gallery->modelClass());
+        $this->assertNull(ContentType::Survey->modelClass());
     }
 
     public function test_from_model_class_resolves_correctly(): void

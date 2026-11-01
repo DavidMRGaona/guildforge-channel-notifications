@@ -5,11 +5,11 @@
   "repository": "DavidMRGaona/guildforge-channel-notifications",
   "namespace": "Modules\\ChannelNotifications",
   "provider": "ChannelNotificationsServiceProvider",
-  "description": "Notificaciones automáticas a Telegram, Discord, Slack y WhatsApp al publicar contenido",
+  "description": "Notificaciones automáticas a Telegram, Discord, Slack y WhatsApp al publicar contenido o abrir encuestas generales",
   "author": "GuildForge",
   "storesUtc": true,
   "requires": {
-    "core": "^3.22",
+    "core": "^3.30",
     "filament": "^5.0",
     "php": ">=8.5",
     "laravel": ">=13.0"
