@@ -52,7 +52,7 @@ final class ContentPublishedNotification extends Notification implements ShouldQ
         $config = app(ChannelConfigServiceInterface::class);
         $credentials = $config->getChannelCredentials(NotificationChannel::Telegram);
         $template = $config->getTemplate(NotificationChannel::Telegram, $this->message->contentType);
-        $text = $this->renderTemplate($template);
+        $text = $this->renderTemplate($template, escapeHtml: true);
 
         return [
             'bot_token' => $credentials['bot_token'],
@@ -126,11 +126,11 @@ final class ContentPublishedNotification extends Notification implements ShouldQ
         ];
     }
 
-    private function renderTemplate(string $template): string
+    private function renderTemplate(string $template, bool $escapeHtml = false): string
     {
         $renderer = app(TemplateRenderer::class);
         $guildName = app(SiteBrandingServiceInterface::class)->siteName();
 
-        return $renderer->render($template, $this->message, $guildName);
+        return $renderer->render($template, $this->message, $guildName, $escapeHtml);
     }
 }

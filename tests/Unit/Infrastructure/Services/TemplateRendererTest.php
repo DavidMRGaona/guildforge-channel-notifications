@@ -61,6 +61,40 @@ final class TemplateRendererTest extends TestCase
         );
     }
 
+    public function test_it_escapes_values_for_html_but_not_the_template(): void
+    {
+        $message = new NotificationMessage(
+            title: 'Rol & tablero <nuevo>',
+            excerpt: 'Dice "hola"',
+            imageUrl: null,
+            contentUrl: 'https://example.com/articulos/x?a=1&b=2',
+            contentType: ContentType::Article,
+            extraData: ['author' => 'Jane <Doe>'],
+        );
+
+        $template = '<b>{guild_name}</b> {title} · {excerpt} · {author} <a href="{url}">Leer</a>';
+
+        $result = $this->renderer->render($template, $message, 'Dados & Rol', escapeHtml: true);
+
+        $this->assertSame(
+            '<b>Dados &amp; Rol</b> Rol &amp; tablero &lt;nuevo&gt; · Dice &quot;hola&quot; · Jane &lt;Doe&gt; <a href="https://example.com/articulos/x?a=1&amp;b=2">Leer</a>',
+            $result,
+        );
+    }
+
+    public function test_it_leaves_values_as_they_are_by_default(): void
+    {
+        $message = new NotificationMessage(
+            title: 'Rol & tablero',
+            excerpt: '',
+            imageUrl: null,
+            contentUrl: 'https://example.com/articulos/x',
+            contentType: ContentType::Article,
+        );
+
+        $this->assertSame('Rol & tablero', $this->renderer->render('{title}', $message, 'GuildForge'));
+    }
+
     public function test_it_handles_empty_image_url(): void
     {
         $message = new NotificationMessage(

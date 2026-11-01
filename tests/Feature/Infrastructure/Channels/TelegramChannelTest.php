@@ -129,6 +129,31 @@ final class TelegramChannelTest extends ModuleTestCase
         Http::assertNothingSent();
     }
 
+    public function test_content_with_an_ampersand_is_sent_escaped_for_html(): void
+    {
+        Http::fake(['*' => Http::response(['ok' => true])]);
+
+        $this->mockConfigService(
+            botToken: 'test-token',
+            chatId: '123456',
+            template: '<b>{title}</b> <a href="{url}">Ver</a>',
+        );
+
+        $notification = new ContentPublishedNotification(
+            new NotificationMessage(
+                title: 'Rol & tablero',
+                excerpt: '',
+                imageUrl: null,
+                contentUrl: 'https://example.com/eventos/rol-tablero',
+                contentType: ContentType::Event,
+            ),
+        );
+
+        (new TelegramChannel)->send(new NotificationTarget, $notification);
+
+        Http::assertSent(fn ($request): bool => $request['text'] === '<b>Rol &amp; tablero</b> <a href="https://example.com/eventos/rol-tablero">Ver</a>');
+    }
+
     private function mockConfigService(string $botToken, string $chatId, string $template): void
     {
         $configService = $this->createMock(ChannelConfigServiceInterface::class);

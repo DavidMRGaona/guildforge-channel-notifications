@@ -374,7 +374,8 @@ final class NotificationChannelSettings extends Page implements HasForms
         $template = $this->getTemplateFromState($state, $channel, $contentType);
 
         $renderer = new TemplateRenderer;
-        $text = $renderer->render($template, $message, $guildName);
+        // Telegram parses the message as HTML: its values are escaped, as in the real notification
+        $text = $renderer->render($template, $message, $guildName, escapeHtml: $channel === NotificationChannel::Telegram);
 
         match ($channel) {
             NotificationChannel::Telegram => $this->sendTelegramTest($state, $text),
