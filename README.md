@@ -13,10 +13,11 @@ Módulo de GuildForge que avisa en canales externos (Telegram, Discord, Slack y 
 - **Credenciales cifradas**: tokens y URLs de webhook se guardan cifrados en la tabla `settings`.
 - **Envío de prueba**: cada canal tiene un botón para mandar un mensaje de prueba desde el panel.
 - **Sin frontend**: el módulo no añade páginas públicas ni rutas propias.
+- **Ayuda en el panel**: guías de la base de conocimiento en `resources/knowledge/es/panel/` (cómo funciona, conectar cada canal, plantillas y prueba), visibles con el permiso `notifications.manage`; la página de configuración abre la guía de entrada con su botón de ayuda.
 
 ## Requisitos
 
-- GuildForge core `^3.30`
+- GuildForge core `^3.35`
 - PHP >= 8.5, Laravel >= 13, Filament 5
 
 El core rechaza el módulo si no se cumplen (`module.json` → `requires`).
