@@ -8,6 +8,7 @@ use App\Application\Services\SettingsServiceInterface;
 use App\Application\Services\SiteBrandingServiceInterface;
 use App\Application\Services\TimezoneServiceInterface;
 use App\Filament\Concerns\ChecksPermissions;
+use App\Filament\Concerns\HasKnowledgeGuideAction;
 use App\Filament\Concerns\ManagesPageSettings;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -41,6 +42,7 @@ use Throwable;
 final class NotificationChannelSettings extends Page implements HasForms
 {
     use ChecksPermissions;
+    use HasKnowledgeGuideAction;
     use InteractsWithForms;
     use ManagesPageSettings;
 
@@ -79,6 +81,14 @@ final class NotificationChannelSettings extends Page implements HasForms
     public static function canAccess(): bool
     {
         return self::userCan(self::MANAGE_PERMISSION);
+    }
+
+    /**
+     * @return array<Action>
+     */
+    protected function getHeaderActions(): array
+    {
+        return array_filter([$this->knowledgeGuideAction('channel-notifications.panel.overview')]);
     }
 
     /**
