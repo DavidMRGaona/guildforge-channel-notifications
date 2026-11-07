@@ -8,6 +8,7 @@ use App\Application\Services\SettingsServiceInterface;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Domain\Enums\NotificationChannel;
 use Modules\ChannelNotifications\Infrastructure\Services\ChannelConfigService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\TestCase;
 
@@ -58,6 +59,44 @@ final class ChannelConfigServiceTemplateFallbackTest extends TestCase
         $result = $this->service->getTemplate(NotificationChannel::Telegram, ContentType::Article);
 
         $this->assertDefaultTemplate('telegram', 'article', $result);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function blankTemplates(): array
+    {
+        return [
+            'spaces only' => ['   '],
+            'whitespace and line breaks' => ["\n \t\r\n"],
+        ];
+    }
+
+    #[DataProvider('blankTemplates')]
+    public function test_get_template_falls_back_when_value_is_only_whitespace(string $blank): void
+    {
+        $this->settings
+            ->expects($this->once())
+            ->method('get')
+            ->with('notifications_template_telegram_event')
+            ->willReturn($blank);
+
+        $result = $this->service->getTemplate(NotificationChannel::Telegram, ContentType::Event);
+
+        $this->assertDefaultTemplate('telegram', 'event', $result);
+    }
+
+    public function test_get_template_keeps_a_custom_template_as_written(): void
+    {
+        $custom = "  Nuevo: {title}\n{excerpt}  ";
+
+        $this->settings
+            ->expects($this->once())
+            ->method('get')
+            ->with('notifications_template_telegram_event')
+            ->willReturn($custom);
+
+        $this->assertSame($custom, $this->service->getTemplate(NotificationChannel::Telegram, ContentType::Event));
     }
 
     private function assertDefaultTemplate(string $channel, string $contentType, string $result): void
