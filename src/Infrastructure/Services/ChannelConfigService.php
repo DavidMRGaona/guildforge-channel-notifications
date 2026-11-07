@@ -71,7 +71,8 @@ final readonly class ChannelConfigService implements ChannelConfigServiceInterfa
         $key = 'notifications_template_'.$channel->value.'_'.$contentType->value;
         $template = $this->settings->get($key);
 
-        if ($template === null || $template === '') {
+        // A whitespace-only template counts as empty, as in the settings page's test message
+        if ($template === null || trim((string) $template) === '') {
             return $this->getDefaultTemplate($channel, $contentType);
         }
 
