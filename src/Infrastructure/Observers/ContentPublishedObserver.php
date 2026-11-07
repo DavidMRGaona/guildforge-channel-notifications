@@ -36,12 +36,25 @@ final readonly class ContentPublishedObserver
         }
     }
 
+    /**
+     * The panel saves tags and photos after the record itself, and the core runs no
+     * transaction around it that could be waited for, so the announcement is prepared once
+     * the request (or command, or job) is done, from what is stored by then.
+     */
     private function dispatchNotification(Model $model): void
     {
-        $contentType = ContentType::fromModelClass($model::class);
-        $message = $this->buildMessage($model, $contentType);
+        defer(function () use ($model): void {
+            $stored = $model->newQuery()->find($model->getKey());
 
-        Notification::send(new NotificationTarget, new ContentPublishedNotification($message));
+            if (! $stored instanceof Model) {
+                return;
+            }
+
+            $contentType = ContentType::fromModelClass($stored::class);
+            $message = $this->buildMessage($stored, $contentType);
+
+            Notification::send(new NotificationTarget, new ContentPublishedNotification($message));
+        });
     }
 
     private function buildMessage(Model $model, ContentType $contentType): NotificationMessage
