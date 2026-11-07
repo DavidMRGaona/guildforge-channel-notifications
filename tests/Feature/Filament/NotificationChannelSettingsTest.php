@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\Authorization\CreatesUsersWithPermissions;
 use Tests\Support\Modules\InteractsWithModulePanel;
 use Tests\Support\Modules\ModuleTestCase;
@@ -115,6 +116,116 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
             ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
 
         Http::assertSent(static fn (Request $request): bool => str_contains((string) $request['text'], (string) __('channel-notifications::messages.test.survey.title')));
+    }
+
+    /**
+     * @return array<string, array{string, array<string, mixed>, string}>
+     */
+    public static function incompleteChannels(): array
+    {
+        $on = static fn (string $channel): array => ["notifications_{$channel}_enabled" => true];
+
+        return [
+            'telegram without token or chat' => ['telegram', $on('telegram'), 'Token del bot, ID del chat'],
+            'telegram without chat' => ['telegram', $on('telegram') + ['notifications_telegram_bot_token' => 'tok'], 'ID del chat'],
+            'telegram with blank values' => ['telegram', $on('telegram') + ['notifications_telegram_bot_token' => '  ', 'notifications_telegram_chat_id' => ' '], 'Token del bot, ID del chat'],
+            'discord without webhook' => ['discord', $on('discord'), 'URL del webhook'],
+            'slack without webhook' => ['slack', $on('slack'), 'URL del webhook'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $form
+     */
+    #[DataProvider('incompleteChannels')]
+    public function test_the_test_message_names_the_missing_form_fields(string $channel, array $form, string $missing): void
+    {
+        Http::fake();
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm($form)
+            ->call('sendTest', $channel, 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_missing_fields', ['fields' => $missing]))
+            ->assertNotNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertNothingSent();
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>, string}>
+     */
+    public static function incompleteWhatsApp(): array
+    {
+        $on = ['notifications_whatsapp_enabled' => true];
+
+        return [
+            'nothing filled in' => [$on, 'Destinatarios, Token de acceso, ID del número de teléfono'],
+            'recipients without token or number id' => [$on + ['notifications_whatsapp_recipients' => '34612345678'], 'Token de acceso, ID del número de teléfono'],
+            'recipients and token without number id' => [$on + ['notifications_whatsapp_recipients' => '34612345678', 'notifications_whatsapp_access_token' => 'tok'], 'ID del número de teléfono'],
+            'only separators as recipients' => [$on + ['notifications_whatsapp_recipients' => ' , ,', 'notifications_whatsapp_access_token' => 'tok', 'notifications_whatsapp_phone_number_id' => '1'], 'Destinatarios'],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $form
+     */
+    #[DataProvider('incompleteWhatsApp')]
+    public function test_the_whatsapp_test_does_not_pass_without_the_api_data_or_a_webhook(array $form, string $missing): void
+    {
+        Http::fake();
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm($form)
+            ->call('sendTest', 'whatsapp', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_missing_whatsapp', ['fields' => $missing]))
+            ->assertNotNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertNothingSent();
+    }
+
+    public function test_the_whatsapp_test_goes_through_a_webhook_alone(): void
+    {
+        Http::fake(['hooks.example.test/*' => Http::response([], 200)]);
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_whatsapp_enabled' => true,
+                'notifications_whatsapp_webhook_url' => 'https://hooks.example.test/wa',
+            ])
+            ->call('sendTest', 'whatsapp', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertSentCount(1);
+    }
+
+    public function test_the_whatsapp_test_goes_through_the_api_with_all_its_data(): void
+    {
+        Http::fake(['graph.facebook.com/*' => Http::response(['messages' => []], 200)]);
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_whatsapp_enabled' => true,
+                'notifications_whatsapp_recipients' => '34612345678, 34698765432',
+                'notifications_whatsapp_access_token' => 'tok',
+                'notifications_whatsapp_phone_number_id' => '555',
+            ])
+            ->call('sendTest', 'whatsapp', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertSent(static fn (Request $request): bool => $request->url() === 'https://graph.facebook.com/v21.0/555/messages'
+            && $request['to'] === '34612345678');
+    }
+
+    public function test_the_test_message_says_the_channel_is_disabled_instead_of_asking_to_save(): void
+    {
+        Http::fake();
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm(['notifications_telegram_enabled' => false])
+            ->call('sendTest', 'telegram', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_disabled'));
+
+        Http::assertNothingSent();
     }
 
     public function test_a_user_without_the_manage_permission_cannot_access_the_settings_page(): void

@@ -35,6 +35,6 @@ Con la API, cada destinatario recibe su propio mensaje: con imagen y el texto de
 
 - **No llega a un número**: revisa que lleva el código de país. Meta solo entrega mensajes de texto libre a quien ha escrito a tu número de empresa en las últimas 24 horas; fuera de ese plazo, el mensaje no llega.
 - **La prueba solo llega a una persona**: es normal. La prueba va solo al primer número de **Destinatarios**; los anuncios reales van a todos.
-- **«El canal no está configurado. Guarda la configuración primero.»**: no hay ni destinatarios ni URL del webhook. Rellena al menos una de las dos vías.
+- **«Falta rellenar en el formulario: la URL del webhook, o bien …»**: no hay ni URL del webhook ni todos los datos de la API (destinatarios, token de acceso e ID del número de teléfono). Rellena una de las dos vías completa; no hace falta guardar para probar.
 
 [[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
