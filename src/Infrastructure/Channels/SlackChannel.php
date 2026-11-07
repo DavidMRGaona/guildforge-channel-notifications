@@ -55,7 +55,7 @@ final class SlackChannel
                     'type' => 'button',
                     'text' => [
                         'type' => 'plain_text',
-                        'text' => 'Ver más',
+                        'text' => __('channel-notifications::messages.slack.view_more'),
                     ],
                     'url' => $data['content_url'],
                 ],

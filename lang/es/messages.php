@@ -141,6 +141,11 @@ return [
         ],
     ],
 
+    // Slack message
+    'slack' => [
+        'view_more' => 'Ver más',
+    ],
+
     // Test notification
     'test' => [
         'event' => [
