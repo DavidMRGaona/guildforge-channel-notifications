@@ -112,6 +112,73 @@ final class SlackChannelTest extends ModuleTestCase
         });
     }
 
+    public function test_the_button_label_follows_the_application_locale(): void
+    {
+        Http::fake(['*' => Http::response('ok')]);
+
+        $this->mockConfigService(
+            webhookUrl: 'https://hooks.slack.com/services/T00/B00/xxx',
+            template: '{title}',
+        );
+
+        $this->app->setLocale('en');
+
+        $notification = new ContentPublishedNotification(
+            new NotificationMessage(
+                title: 'New event',
+                excerpt: 'Event description',
+                imageUrl: null,
+                contentUrl: 'https://example.com/eventos/test',
+                contentType: ContentType::Event,
+            ),
+        );
+
+        (new SlackChannel)->send(new NotificationTarget, $notification);
+
+        Http::assertSent(function ($request): bool {
+            foreach ($request->data()['blocks'] ?? [] as $block) {
+                if ($block['type'] === 'actions') {
+                    return $block['elements'][0]['text']['text'] === 'See more'
+                        && $block['elements'][0]['url'] === 'https://example.com/eventos/test';
+                }
+            }
+
+            return false;
+        });
+    }
+
+    public function test_the_button_label_is_spanish_by_default(): void
+    {
+        Http::fake(['*' => Http::response('ok')]);
+
+        $this->mockConfigService(
+            webhookUrl: 'https://hooks.slack.com/services/T00/B00/xxx',
+            template: '{title}',
+        );
+
+        $notification = new ContentPublishedNotification(
+            new NotificationMessage(
+                title: 'New event',
+                excerpt: 'Event description',
+                imageUrl: null,
+                contentUrl: 'https://example.com/eventos/test',
+                contentType: ContentType::Event,
+            ),
+        );
+
+        (new SlackChannel)->send(new NotificationTarget, $notification);
+
+        Http::assertSent(function ($request): bool {
+            foreach ($request->data()['blocks'] ?? [] as $block) {
+                if ($block['type'] === 'actions') {
+                    return $block['elements'][0]['text']['text'] === 'Ver más';
+                }
+            }
+
+            return false;
+        });
+    }
+
     public function test_it_does_not_send_when_webhook_url_empty(): void
     {
         Http::fake();
