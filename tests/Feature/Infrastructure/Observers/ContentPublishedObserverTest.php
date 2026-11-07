@@ -37,6 +37,8 @@ final class ContentPublishedObserverTest extends ModuleTestCase
         $this->app->instance(ChannelConfigServiceInterface::class, $configService);
 
         Notification::fake();
+        // The announcement is deferred to the end of the request; these tests run it at once
+        $this->withoutDefer();
     }
 
     public function test_it_dispatches_notification_when_event_created_as_published(): void

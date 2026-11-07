@@ -37,6 +37,7 @@ final class UtcStorageTest extends ModuleTestCase
         $this->app->instance(ChannelConfigServiceInterface::class, $configService);
 
         Notification::fake();
+        $this->withoutDefer();
     }
 
     public function test_the_channel_message_names_the_event_dates_in_madrid_time_with_utc_storage(): void
