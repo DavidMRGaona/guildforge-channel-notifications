@@ -212,7 +212,22 @@ final class NotificationChannelSettings extends Page implements HasForms
 
         if (($state["{$prefix}_enabled"] ?? false) !== true && $state["{$prefix}_enabled"] !== '1') {
             Notification::make()
-                ->title(__('channel-notifications::messages.settings.actions.test_not_configured'))
+                ->title(__('channel-notifications::messages.settings.actions.test_disabled'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $missing = $this->missingTestFields($channel, $state);
+
+        if ($missing !== []) {
+            $messageKey = $channel === NotificationChannel::WhatsApp
+                ? 'test_missing_whatsapp'
+                : 'test_missing_fields';
+
+            Notification::make()
+                ->title(__("channel-notifications::messages.settings.actions.{$messageKey}", ['fields' => implode(', ', $missing)]))
                 ->warning()
                 ->send();
 
@@ -371,6 +386,57 @@ final class NotificationChannelSettings extends Page implements HasForms
             NotificationChannel::Slack => 'heroicon-o-hashtag',
             NotificationChannel::WhatsApp => 'heroicon-o-phone',
         };
+    }
+
+    /**
+     * Labels of the form fields the test needs and the form leaves blank.
+     *
+     * The test reads the form as it is, saved or not, so this is what the user has to fill in.
+     * WhatsApp is satisfied by the webhook alone; without it the API needs all of its data.
+     *
+     * @param  array<string, mixed>  $state
+     * @return list<string>
+     */
+    private function missingTestFields(NotificationChannel $channel, array $state): array
+    {
+        $prefix = $channel->settingsPrefix();
+        $filled = static fn (string $key): bool => trim((string) ($state[$key] ?? '')) !== '';
+
+        $required = match ($channel) {
+            NotificationChannel::Telegram => [
+                "{$prefix}_bot_token" => 'bot_token',
+                "{$prefix}_chat_id" => 'chat_id',
+            ],
+            NotificationChannel::Discord, NotificationChannel::Slack => [
+                "{$prefix}_webhook_url" => 'webhook_url',
+            ],
+            NotificationChannel::WhatsApp => [
+                "{$prefix}_recipients" => 'recipients',
+                "{$prefix}_access_token" => 'access_token',
+                "{$prefix}_phone_number_id" => 'phone_number_id',
+            ],
+        };
+
+        if ($channel === NotificationChannel::WhatsApp && $filled("{$prefix}_webhook_url")) {
+            return [];
+        }
+
+        $missing = [];
+
+        foreach ($required as $key => $field) {
+            $value = (string) ($state[$key] ?? '');
+
+            // Recipients are a comma-separated list: only separators count as empty
+            if ($field === 'recipients') {
+                $value = trim(str_replace(',', '', $value));
+            }
+
+            if (trim($value) === '') {
+                $missing[] = (string) __("channel-notifications::messages.settings.fields.{$field}");
+            }
+        }
+
+        return $missing;
     }
 
     /**
@@ -552,10 +618,6 @@ final class NotificationChannelSettings extends Page implements HasForms
             if ($response->failed()) {
                 throw new RuntimeException("Webhook HTTP {$response->status()}");
             }
-        }
-
-        if ($firstRecipient === '' && $webhookUrl === '') {
-            throw new RuntimeException(__('channel-notifications::messages.settings.actions.test_not_configured'));
         }
     }
 }

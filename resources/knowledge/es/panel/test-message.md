@@ -36,7 +36,8 @@ Sale un aviso con «Mensaje de prueba enviado correctamente.» o con el error qu
 ## Si algo no sale bien
 
 - **«Error al enviar el mensaje de prueba: …»**: lo que sigue es la respuesta del servicio. Suele ser un token, un ID o una URL de webhook mal copiados. Las guías de cada canal explican los errores más comunes.
-- **«El canal no está configurado. Guarda la configuración primero.»**: en WhatsApp, faltan los destinatarios y la URL del webhook.
+- **«Falta rellenar en el formulario: …»**: la prueba usa lo que hay escrito, así que no hace falta guardar antes; rellena los campos que cita el aviso. En WhatsApp basta la URL del webhook o, sin ella, los destinatarios, el token de acceso y el ID del número de teléfono.
+- **«El canal está desactivado. Actívalo en el formulario para enviar la prueba.»**: marca **Canal activo** en la pestaña del canal.
 - **La prueba llega, pero los anuncios no**: revisa que guardaste y que el tipo de contenido está marcado. Los anuncios reales salen en segundo plano; si siguen sin llegar, avisa a quien mantiene la web para que revise la cola de tareas.
 
 [[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
