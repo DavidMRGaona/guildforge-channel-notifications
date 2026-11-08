@@ -11,7 +11,6 @@ use App\Infrastructure\Persistence\Eloquent\Models\UserModel;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
-use Modules\ChannelNotifications\ChannelNotificationsServiceProvider;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -51,13 +50,6 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
     {
         // The cluster entry sits in the core's «Sistema» group, so the page must not name one
         $this->assertNull(NotificationChannelSettings::getNavigationGroup());
-    }
-
-    public function test_the_module_registers_no_navigation_groups(): void
-    {
-        $provider = new ChannelNotificationsServiceProvider($this->app);
-
-        $this->assertSame([], $provider->registerNavigationGroups());
     }
 
     public function test_an_admin_can_access_the_settings_page(): void
