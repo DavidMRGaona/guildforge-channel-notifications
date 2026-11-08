@@ -15,7 +15,7 @@ La prueba manda un mensaje de ejemplo al canal para que veas si llega y cómo qu
 
 ## Enviar la prueba
 
-1. En el menú lateral, abre **Configuración** y elige **Notificaciones a canales**.
+1. En el menú lateral, abre **Sistema**, luego **Configuración** y elige **Notificaciones a canales**.
 2. Abre la pestaña del canal y comprueba que **Canal activo** está encendido; el botón solo aparece entonces.
 3. Pulsa **Enviar prueba**.
 4. En **Tipo de contenido**, elige qué ejemplo quieres: **Eventos**, **Artículos**, **Galerías** o **Encuestas**, y confirma.
@@ -40,4 +40,4 @@ Sale un aviso con «Mensaje de prueba enviado correctamente.» o con el error qu
 - **«El canal está desactivado. Actívalo en el formulario para enviar la prueba.»**: marca **Canal activo** en la pestaña del canal.
 - **La prueba llega, pero los anuncios no**: revisa que guardaste y que el tipo de contenido está marcado. Los anuncios reales salen en segundo plano; si siguen sin llegar, avisa a quien mantiene la web para que revise la cola de tareas.
 
-[[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
+[[action:filament.admin.configuracion.pages.notification-channel-settings|Abrir las notificaciones a canales]]

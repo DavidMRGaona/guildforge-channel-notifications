@@ -21,7 +21,7 @@ Telegram publica los anuncios a través de un bot: un usuario automático que es
 
 ## Conectarlo
 
-1. En el menú lateral, abre **Configuración** y elige **Notificaciones a canales**.
+1. En el menú lateral, abre **Sistema**, luego **Configuración** y elige **Notificaciones a canales**.
 2. En la pestaña **Telegram**, activa **Canal activo**.
 3. En **Credenciales**, pega el **Token del bot** y el **ID del chat**.
 4. En **Tipos de contenido**, marca lo que quieres anunciar: **Eventos**, **Artículos**, **Galerías** o **Encuestas**.
@@ -40,4 +40,4 @@ Telegram lee el mensaje como HTML sencillo. En las plantillas puedes usar etique
 - **«… chat not found»**: el ID del chat no es correcto, o el bot no está en ese grupo o canal.
 - **El bot no puede publicar en el canal**: hazlo administrador del canal.
 
-[[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
+[[action:filament.admin.configuracion.pages.notification-channel-settings|Abrir las notificaciones a canales]]

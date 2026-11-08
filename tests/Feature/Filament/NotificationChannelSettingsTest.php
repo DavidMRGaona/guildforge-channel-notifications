@@ -6,10 +6,12 @@ namespace Modules\ChannelNotifications\Tests\Feature\Filament;
 
 use App\Application\Authorization\Services\PermissionRegistryInterface;
 use App\Application\Services\SettingsServiceInterface;
+use App\Filament\Clusters\SettingsCluster;
 use App\Infrastructure\Persistence\Eloquent\Models\UserModel;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
+use Modules\ChannelNotifications\ChannelNotificationsServiceProvider;
 use Modules\ChannelNotifications\Domain\Enums\ContentType;
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -32,6 +34,30 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
 
         $this->registerOnAdminPanel(pages: [NotificationChannelSettings::class]);
         $this->actingAsPanelAdmin();
+    }
+
+    public function test_the_page_lives_in_the_settings_cluster_in_its_slot(): void
+    {
+        $this->assertSame(SettingsCluster::class, NotificationChannelSettings::getCluster());
+        $this->assertSame(140, NotificationChannelSettings::getNavigationSort());
+        $this->assertSame('Notificaciones a canales', NotificationChannelSettings::getNavigationLabel());
+        $this->assertStringStartsWith(
+            '/admin/configuracion/',
+            (string) parse_url(NotificationChannelSettings::getUrl(), PHP_URL_PATH),
+        );
+    }
+
+    public function test_the_page_declares_no_navigation_group_of_its_own(): void
+    {
+        // The cluster entry sits in the core's «Sistema» group, so the page must not name one
+        $this->assertNull(NotificationChannelSettings::getNavigationGroup());
+    }
+
+    public function test_the_module_registers_no_navigation_groups(): void
+    {
+        $provider = new ChannelNotificationsServiceProvider($this->app);
+
+        $this->assertSame([], $provider->registerNavigationGroups());
     }
 
     public function test_an_admin_can_access_the_settings_page(): void

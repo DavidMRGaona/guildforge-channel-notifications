@@ -49,7 +49,7 @@ El módulo no tiene componentes Vue, así que no hay assets que compilar.
 
 ## Configuración
 
-Al habilitarlo aparece **Notificaciones a canales** en el grupo **Configuración** del panel. Pueden abrir la página los administradores y los usuarios con el permiso `notifications.manage` (ver [Permisos](#permisos)).
+Al habilitarlo aparece **Notificaciones a canales** en **Sistema → Configuración** del panel. Pueden abrir la página los administradores y los usuarios con el permiso `notifications.manage` (ver [Permisos](#permisos)).
 
 La página tiene una pestaña por canal. En cada una:
 

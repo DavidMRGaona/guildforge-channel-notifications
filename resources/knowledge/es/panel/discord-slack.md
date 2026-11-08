@@ -22,7 +22,7 @@ Trata la URL como una contraseña: quien la tenga puede escribir en el canal.
 
 ## Conectarlo
 
-1. En el menú lateral, abre **Configuración** y elige **Notificaciones a canales**.
+1. En el menú lateral, abre **Sistema**, luego **Configuración** y elige **Notificaciones a canales**.
 2. Abre la pestaña **Discord** o **Slack** y activa **Canal activo**.
 3. En **Credenciales**, pega la **URL del webhook**.
 4. En **Tipos de contenido**, marca lo que quieres anunciar: **Eventos**, **Artículos**, **Galerías** o **Encuestas**.
@@ -41,4 +41,4 @@ Por eso las plantillas por defecto de Discord y Slack no repiten el título ni e
 - **«Error al enviar el mensaje de prueba: HTTP 404»** (o 401, 403): la URL del webhook no es correcta o el webhook se ha borrado. Crea otro y pega su URL.
 - **No llega nada a Slack**: comprueba que el webhook es del canal que miras; cada webhook entrante publica en un solo canal.
 
-[[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
+[[action:filament.admin.configuracion.pages.notification-channel-settings|Abrir las notificaciones a canales]]

@@ -15,7 +15,7 @@ Cada canal tiene una plantilla por tipo de contenido: cuatro canales por cuatro 
 
 ## Cambiar una plantilla
 
-1. En el menú lateral, abre **Configuración** y elige **Notificaciones a canales**.
+1. En el menú lateral, abre **Sistema**, luego **Configuración** y elige **Notificaciones a canales**.
 2. Abre la pestaña del canal. Con **Canal activo** encendido, despliega **Plantillas de mensajes**.
 3. Escribe en **Plantilla de eventos**, **Plantilla de artículos**, **Plantilla de galerías** o **Plantilla de encuestas**. Mientras está vacía, el campo muestra en gris la plantilla por defecto; puedes copiarla y cambiarla.
 4. Usa los placeholders que salen debajo de cada campo: se cambian por el dato real al enviar.
@@ -57,4 +57,4 @@ Un placeholder que no es de ese tipo no se rellena: puede salir tal cual en el m
 - **Sale `{date}` (o otro placeholder) tal cual**: ese placeholder no es del tipo de contenido de la plantilla. Mira la tabla.
 - **Telegram rechaza el mensaje**: alguna etiqueta HTML de la plantilla está mal cerrada o no la admite Telegram. Prueba con **Enviar prueba** hasta que salga bien.
 
-[[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
+[[action:filament.admin.configuracion.pages.notification-channel-settings|Abrir las notificaciones a canales]]
