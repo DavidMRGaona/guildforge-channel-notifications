@@ -7,6 +7,7 @@ namespace Modules\ChannelNotifications\Filament\Pages;
 use App\Application\Services\SettingsServiceInterface;
 use App\Application\Services\SiteBrandingServiceInterface;
 use App\Application\Services\TimezoneServiceInterface;
+use App\Filament\Clusters\SettingsCluster;
 use App\Filament\Concerns\ChecksPermissions;
 use App\Filament\Concerns\HasKnowledgeGuideAction;
 use App\Filament\Concerns\ManagesPageSettings;
@@ -54,7 +55,9 @@ final class NotificationChannelSettings extends Page implements HasForms
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
 
-    protected static ?int $navigationSort = 95;
+    protected static ?string $cluster = SettingsCluster::class;
+
+    protected static ?int $navigationSort = 140;
 
     protected string $view = 'channel-notifications::filament.pages.notification-channel-settings';
 
@@ -66,11 +69,6 @@ final class NotificationChannelSettings extends Page implements HasForms
     public static function getNavigationLabel(): string
     {
         return __('channel-notifications::messages.settings.navigation_label');
-    }
-
-    public static function getNavigationGroup(): string
-    {
-        return __('channel-notifications::messages.settings.navigation_group');
     }
 
     public function getTitle(): string

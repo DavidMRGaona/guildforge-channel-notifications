@@ -20,7 +20,7 @@ WhatsApp tiene dos formas de recibir los anuncios. Basta con configurar una, per
 
 ## Conectarlo
 
-1. En el menú lateral, abre **Configuración** y elige **Notificaciones a canales**.
+1. En el menú lateral, abre **Sistema**, luego **Configuración** y elige **Notificaciones a canales**.
 2. En la pestaña **WhatsApp**, activa **Canal activo**.
 3. En **Credenciales**, rellena la vía que uses:
    - Para la API: el **Token de acceso** (permanente) y el **ID del número de teléfono**, los dos de tu cuenta de WhatsApp Business, y en **Destinatarios** los números separados por comas, con el código de país, como 34612345678, 34698765432.
@@ -37,4 +37,4 @@ Con la API, cada destinatario recibe su propio mensaje: con imagen y el texto de
 - **La prueba solo llega a una persona**: es normal. La prueba va solo al primer número de **Destinatarios**; los anuncios reales van a todos.
 - **«Falta rellenar en el formulario: la URL del webhook, o bien …»**: no hay ni URL del webhook ni todos los datos de la API (destinatarios, token de acceso e ID del número de teléfono). Rellena una de las dos vías completa; no hace falta guardar para probar.
 
-[[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
+[[action:filament.admin.configuracion.pages.notification-channel-settings|Abrir las notificaciones a canales]]

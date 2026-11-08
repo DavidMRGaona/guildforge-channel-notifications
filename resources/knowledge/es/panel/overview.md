@@ -40,7 +40,7 @@ Puedes activar uno, varios o todos. Cada uno tiene su propia guía para conectar
 
 ## Dónde se configura
 
-En el menú lateral, abre **Configuración** y elige **Notificaciones a canales**. La página tiene una pestaña por canal. En cada una:
+En el menú lateral, abre **Sistema**, luego **Configuración** y elige **Notificaciones a canales**. La página tiene una pestaña por canal. En cada una:
 
 1. **Canal activo** enciende el canal. El resto de campos aparece al activarlo.
 2. En **Credenciales** pegas los datos de conexión. Los tokens y las URL de webhook se guardan cifrados.
@@ -61,4 +61,4 @@ Hace falta el permiso **Gestionar notificaciones a canales**. Los administradore
 - **Un canal falla y los demás no**: un fallo en un canal no frena a los otros. Revisa sus credenciales y prueba de nuevo con **Enviar prueba**.
 - **No sé si un anuncio ha fallado**: los fallos de los anuncios reales no se muestran en el panel; quedan en el registro de errores de la web.
 
-[[action:filament.admin.pages.notification-channel-settings|Abrir las notificaciones a canales]]
+[[action:filament.admin.configuracion.pages.notification-channel-settings|Abrir las notificaciones a canales]]

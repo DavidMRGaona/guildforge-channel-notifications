@@ -9,7 +9,7 @@
   "author": "GuildForge",
   "storesUtc": true,
   "requires": {
-    "core": "^3.35",
+    "core": "^3.43",
     "filament": "^5.0",
     "php": ">=8.5",
     "laravel": ">=13.0"
