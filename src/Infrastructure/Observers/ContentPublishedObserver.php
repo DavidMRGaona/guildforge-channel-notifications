@@ -75,7 +75,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => Str::limit(strip_tags((string) $model->getAttribute('description')), 200),
             ContentType::Article => Str::limit(strip_tags((string) ($model->getAttribute('excerpt') ?: $model->getAttribute('content'))), 200),
             ContentType::Gallery => Str::limit(strip_tags((string) $model->getAttribute('description')), 200),
-            ContentType::Survey => throw $this->surveysHaveNoModel(),
+            ContentType::Survey, ContentType::ForumDiscussion => throw $this->contentHasNoModel(),
         };
     }
 
@@ -85,7 +85,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => $model->getAttribute('image_public_id'),
             ContentType::Article => $model->getAttribute('featured_image_public_id'),
             ContentType::Gallery => $model instanceof GalleryModel ? $model->cover_image_public_id : null,
-            ContentType::Survey => throw $this->surveysHaveNoModel(),
+            ContentType::Survey, ContentType::ForumDiscussion => throw $this->contentHasNoModel(),
         };
 
         if ($publicId === null || $publicId === '') {
@@ -103,7 +103,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => url("/eventos/{$slug}"),
             ContentType::Article => url("/articulos/{$slug}"),
             ContentType::Gallery => url("/galeria/{$slug}"),
-            ContentType::Survey => throw $this->surveysHaveNoModel(),
+            ContentType::Survey, ContentType::ForumDiscussion => throw $this->contentHasNoModel(),
         };
     }
 
@@ -116,7 +116,7 @@ final readonly class ContentPublishedObserver
             ContentType::Event => $this->getEventData($model),
             ContentType::Article => $this->getArticleData($model),
             ContentType::Gallery => $this->getGalleryData($model),
-            ContentType::Survey => throw $this->surveysHaveNoModel(),
+            ContentType::Survey, ContentType::ForumDiscussion => throw $this->contentHasNoModel(),
         };
     }
 
@@ -192,10 +192,11 @@ final readonly class ContentPublishedObserver
 
     /**
      * Only core models reach the observer (ContentType::fromModelClass()): a survey is announced
-     * from the core's GeneralSurveyOpened event by AnnounceGeneralSurvey.
+     * from the core's GeneralSurveyOpened event by AnnounceGeneralSurvey, a forum discussion from
+     * ForumDiscussionStarted by AnnounceForumDiscussion.
      */
-    private function surveysHaveNoModel(): LogicException
+    private function contentHasNoModel(): LogicException
     {
-        return new LogicException('Surveys have no model to observe: they are announced from GeneralSurveyOpened.');
+        return new LogicException('Surveys and forum discussions have no model to observe: they are announced from their core events.');
     }
 }

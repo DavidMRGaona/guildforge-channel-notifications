@@ -56,4 +56,14 @@ final class ContentTypePlaceholdersTest extends ModuleTestCase
             array_keys($placeholders),
         );
     }
+
+    public function test_forum_discussion_placeholders_have_the_tags_and_no_image(): void
+    {
+        $placeholders = ContentType::ForumDiscussion->placeholders();
+
+        $this->assertSame(
+            ['{title}', '{excerpt}', '{url}', '{guild_name}', '{tags}'],
+            array_keys($placeholders),
+        );
+    }
 }

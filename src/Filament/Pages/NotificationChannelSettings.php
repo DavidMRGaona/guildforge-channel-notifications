@@ -483,6 +483,9 @@ final class NotificationChannelSettings extends Page implements HasForms
                 'close_date' => __("{$prefix}.close_date"),
                 'survey_kind' => __('channel-notifications::messages.surveys.kind.survey'),
             ],
+            ContentType::ForumDiscussion => [
+                'tags' => __("{$prefix}.tags"),
+            ],
         };
 
         return new NotificationMessage(

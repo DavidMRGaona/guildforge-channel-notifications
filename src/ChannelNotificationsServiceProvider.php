@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\ChannelNotifications;
 
 use App\Application\Modules\DTOs\PermissionDTO;
+use App\Domain\Forum\Events\ForumDiscussionStarted;
 use App\Domain\Surveys\Events\GeneralSurveyOpened;
 use App\Infrastructure\Persistence\Eloquent\Models\ArticleModel;
 use App\Infrastructure\Persistence\Eloquent\Models\EventModel;
@@ -15,6 +16,7 @@ use Modules\ChannelNotifications\Application\Services\ChannelConfigServiceInterf
 use Modules\ChannelNotifications\Filament\Pages\NotificationChannelSettings;
 use Modules\ChannelNotifications\Infrastructure\Observers\ContentPublishedObserver;
 use Modules\ChannelNotifications\Infrastructure\Services\ChannelConfigService;
+use Modules\ChannelNotifications\Listeners\AnnounceForumDiscussion;
 use Modules\ChannelNotifications\Listeners\AnnounceGeneralSurvey;
 
 final class ChannelNotificationsServiceProvider extends ModuleServiceProvider
@@ -44,6 +46,8 @@ final class ChannelNotificationsServiceProvider extends ModuleServiceProvider
 
         // The surveys module dispatches it, if installed, when a general survey asks to be announced
         Event::listen(GeneralSurveyOpened::class, AnnounceGeneralSurvey::class);
+        // The forum module dispatches it, if installed, for the discussions it lets be announced
+        Event::listen(ForumDiscussionStarted::class, AnnounceForumDiscussion::class);
     }
 
     /**
