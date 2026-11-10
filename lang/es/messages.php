@@ -39,6 +39,7 @@ return [
             'template_article' => 'Plantilla de artículos',
             'template_gallery' => 'Plantilla de galerías',
             'template_survey' => 'Plantilla de encuestas',
+            'template_forum_discussion' => 'Plantilla de temas del foro',
         ],
 
         'helpers' => [
@@ -70,6 +71,7 @@ return [
         'article' => 'Artículos',
         'gallery' => 'Galerías',
         'survey' => 'Encuestas',
+        'forum_discussion' => 'Temas del foro',
     ],
 
     // Placeholders
@@ -120,24 +122,28 @@ return [
             'article' => "<b>{guild_name}</b> — Nuevo artículo\n\n📰 <b>{title}</b>\n✍️ {author}\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Leer artículo</a>",
             'gallery' => "<b>{guild_name}</b> — Nueva galería\n\n📸 <b>{title}</b>\n🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Ver galería</a>",
             'survey' => "<b>{guild_name}</b> — {survey_kind}\n\n🗳 <b>{title}</b>\n⏳ Cierre: {close_date}\n\n{excerpt}\n\n🔗 <a href=\"{url}\">Responder</a>",
+            'forum_discussion' => "<b>{guild_name}</b> — Nuevo tema en el foro\n\n💬 <b>{title}</b>\n\n{excerpt}\n\n🏷 {tags}\n\n🔗 <a href=\"{url}\">Ver tema</a>",
         ],
         'discord' => [
             'event' => "📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}",
             'article' => "✍️ {author}\n\n{excerpt}\n\n🏷 {tags}",
             'gallery' => "🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}",
             'survey' => "{survey_kind}\n⏳ Cierre: {close_date}\n\n{excerpt}",
+            'forum_discussion' => "💬 Nuevo tema en el foro\n\n{excerpt}\n\n🏷 {tags}",
         ],
         'slack' => [
             'event' => "📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}",
             'article' => "✍️ {author}\n\n{excerpt}\n\n🏷 {tags}",
             'gallery' => "🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}",
             'survey' => "{survey_kind}\n⏳ Cierre: {close_date}\n\n{excerpt}",
+            'forum_discussion' => "💬 Nuevo tema en el foro\n\n{excerpt}\n\n🏷 {tags}",
         ],
         'whatsapp' => [
             'event' => "{guild_name} — Nuevo evento\n\n📌 {title}\n📅 {date} → {end_date}\n📍 {location}\n💰 {price}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
             'article' => "{guild_name} — Nuevo artículo\n\n📰 {title}\n✍️ {author}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
             'gallery' => "{guild_name} — Nueva galería\n\n📸 {title}\n🖼 {photo_count} fotos\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
             'survey' => "{guild_name} — {survey_kind}\n\n🗳 {title}\n⏳ Cierre: {close_date}\n\n{excerpt}\n\n👉 {url}",
+            'forum_discussion' => "{guild_name} — Nuevo tema en el foro\n\n💬 {title}\n\n{excerpt}\n\n🏷 {tags}\n\n👉 {url}",
         ],
     ],
 
@@ -173,6 +179,11 @@ return [
             'title' => 'Horario del local',
             'excerpt' => 'Queremos saber qué días y franjas os vienen mejor para abrir el local.',
             'close_date' => '15/03/2026 20:00',
+        ],
+        'forum_discussion' => [
+            'title' => 'Busco grupo para una campaña de rol',
+            'excerpt' => 'Empezamos una campaña nueva y nos falta un jugador.',
+            'tags' => 'general, rol',
         ],
     ],
 ];

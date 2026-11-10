@@ -14,6 +14,7 @@ enum ContentType: string
     case Article = 'article';
     case Gallery = 'gallery';
     case Survey = 'survey';
+    case ForumDiscussion = 'forum_discussion';
 
     public function label(): string
     {
@@ -22,12 +23,14 @@ enum ContentType: string
             self::Article => __('channel-notifications::messages.content_types.article'),
             self::Gallery => __('channel-notifications::messages.content_types.gallery'),
             self::Survey => __('channel-notifications::messages.content_types.survey'),
+            self::ForumDiscussion => __('channel-notifications::messages.content_types.forum_discussion'),
         };
     }
 
     /**
      * The core model whose publication is announced; null for content announced from an event
-     * (a survey, told by the core's GeneralSurveyOpened).
+     * (a survey, told by the core's GeneralSurveyOpened; a forum discussion, told by
+     * ForumDiscussionStarted).
      *
      * @return class-string|null
      */
@@ -37,7 +40,7 @@ enum ContentType: string
             self::Event => EventModel::class,
             self::Article => ArticleModel::class,
             self::Gallery => GalleryModel::class,
-            self::Survey => null,
+            self::Survey, self::ForumDiscussion => null,
         };
     }
 
@@ -76,6 +79,14 @@ enum ContentType: string
                 '{guild_name}' => $common['{guild_name}'],
                 '{close_date}' => __('channel-notifications::messages.placeholders.close_date'),
                 '{survey_kind}' => __('channel-notifications::messages.placeholders.survey_kind'),
+            ],
+            // A forum discussion has no image
+            self::ForumDiscussion => [
+                '{title}' => $common['{title}'],
+                '{excerpt}' => $common['{excerpt}'],
+                '{url}' => $common['{url}'],
+                '{guild_name}' => $common['{guild_name}'],
+                '{tags}' => $common['{tags}'],
             ],
         };
     }
