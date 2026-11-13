@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Modules\ChannelNotifications\Tests\Feature\Filament;
 
 use App\Application\Authorization\Services\PermissionRegistryInterface;
+use App\Application\Impersonation\Services\ImpersonationContextInterface;
 use App\Application\Services\SettingsServiceInterface;
+use App\Domain\Impersonation\Enums\ImpersonationMode;
 use App\Filament\Clusters\SettingsCluster;
 use App\Infrastructure\Persistence\Eloquent\Models\UserModel;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -97,6 +100,105 @@ final class NotificationChannelSettingsTest extends ModuleTestCase
 
         Http::assertSent(static fn (Request $request): bool => $request->url() === 'https://api.telegram.org/bottest-token/sendMessage'
             && $request['chat_id'] === '-100456');
+    }
+
+    /**
+     * @return array<string, array{string, array<string, mixed>}>
+     */
+    public static function channelsWithTheirFilledForm(): array
+    {
+        return [
+            'telegram' => ['telegram', [
+                'notifications_telegram_enabled' => true,
+                'notifications_telegram_bot_token' => 'test-token',
+                'notifications_telegram_chat_id' => '-100456',
+            ]],
+            'discord' => ['discord', [
+                'notifications_discord_enabled' => true,
+                'notifications_discord_webhook_url' => 'https://discord.test/api/webhooks/1/abc',
+            ]],
+            'slack' => ['slack', [
+                'notifications_slack_enabled' => true,
+                'notifications_slack_webhook_url' => 'https://hooks.slack.test/services/T/B/x',
+            ]],
+            'whatsapp' => ['whatsapp', [
+                'notifications_whatsapp_enabled' => true,
+                'notifications_whatsapp_access_token' => 'wa-token',
+                'notifications_whatsapp_phone_number_id' => '12345',
+                'notifications_whatsapp_recipients' => '34612345678',
+                'notifications_whatsapp_webhook_url' => 'https://bridge.test/hook',
+            ]],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $form
+     */
+    #[DataProvider('channelsWithTheirFilledForm')]
+    public function test_no_test_message_is_sent_during_an_impersonation(string $channel, array $form): void
+    {
+        Http::fake();
+        $this->bindImpersonationContext(active: true);
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm($form)
+            ->call('sendTest', $channel, 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_impersonating'));
+
+        Http::assertNothingSent();
+    }
+
+    public function test_the_impersonation_notice_is_exactly_the_agreed_text(): void
+    {
+        $this->assertSame(
+            'Durante una impersonación no se envían mensajes de prueba.',
+            __('channel-notifications::messages.settings.actions.test_impersonating'),
+        );
+    }
+
+    public function test_the_test_message_is_sent_as_usual_when_no_impersonation_is_active(): void
+    {
+        Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
+        $this->bindImpersonationContext(active: false);
+
+        Livewire::test(NotificationChannelSettings::class)
+            ->fillForm([
+                'notifications_telegram_enabled' => true,
+                'notifications_telegram_bot_token' => 'test-token',
+                'notifications_telegram_chat_id' => '-100456',
+            ])
+            ->call('sendTest', 'telegram', 'event')
+            ->assertNotified(__('channel-notifications::messages.settings.actions.test_success'));
+
+        Http::assertSentCount(1);
+    }
+
+    private function bindImpersonationContext(bool $active): void
+    {
+        $this->app->instance(ImpersonationContextInterface::class, new readonly class($active) implements ImpersonationContextInterface
+        {
+            public function __construct(private bool $active) {}
+
+            public function isActive(): bool
+            {
+                return $this->active;
+            }
+
+            public function impersonator(): ?Authenticatable
+            {
+                return null;
+            }
+
+            public function target(): ?Authenticatable
+            {
+                return null;
+            }
+
+            public function mode(): ?ImpersonationMode
+            {
+                return $this->active ? ImpersonationMode::Simulate : null;
+            }
+        });
     }
 
     public function test_the_telegram_test_message_escapes_the_values_for_html(): void
