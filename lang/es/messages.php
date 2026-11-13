@@ -58,6 +58,7 @@ return [
             'test' => 'Enviar prueba',
             'test_success' => 'Mensaje de prueba enviado correctamente.',
             'test_error' => 'Error al enviar el mensaje de prueba: :error',
+            'test_impersonating' => 'Durante una impersonación no se envían mensajes de prueba.',
             'test_disabled' => 'El canal está desactivado. Actívalo en el formulario para enviar la prueba.',
             'test_missing_fields' => 'Falta rellenar en el formulario: :fields.',
             'test_missing_whatsapp' => 'Falta rellenar en el formulario: la URL del webhook, o bien :fields.',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\ChannelNotifications\Filament\Pages;
 
+use App\Application\Impersonation\Services\ImpersonationContextInterface;
 use App\Application\Services\SettingsServiceInterface;
 use App\Application\Services\SiteBrandingServiceInterface;
 use App\Application\Services\TimezoneServiceInterface;
@@ -203,6 +204,17 @@ final class NotificationChannelSettings extends Page implements HasForms
 
     public function sendTest(string $channelValue, string $contentTypeValue): void
     {
+        // The core's safety net undoes the database, not a message posted to an external service:
+        // while an administrator impersonates someone, nothing leaves the application (any mode)
+        if (app(ImpersonationContextInterface::class)->isActive()) {
+            Notification::make()
+                ->title(__('channel-notifications::messages.settings.actions.test_impersonating'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
         $channel = NotificationChannel::from($channelValue);
         $contentType = ContentType::from($contentTypeValue);
         $prefix = $channel->settingsPrefix();
